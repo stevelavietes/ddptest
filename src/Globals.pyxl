@@ -1,0 +1,30 @@
+
+const ZLayers = {
+    BASE : 0,
+    CURSORUP : 1,
+    MASK : 2,
+    OVER : 3,
+}
+
+//----
+
+
+let g_frameNum = 2
+let g_frameNumPrev = 1
+
+def GlobalsStep():
+    JoyUpdate()
+    g_frameNumPrev = g_frameNum
+    g_frameNum = (g_frameNum + 1) mod 65536
+
+
+const Wins = [0, 0]
+const Level = [4, 4]
+
+let CursorsPerBoard = 2
+let BoardWidth = 8
+let Boards = []
+
+
+const g_clock = Clock()
+const g_clockPos = xy(SCREEN_SIZE.x / 2 - 18, 2)

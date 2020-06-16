@@ -1,0 +1,133 @@
+
+
+const MenuBackdropFrames = {
+    NW : 0,
+    N : 1,
+    NE : 2,
+    W : 3,
+    SE : 4,
+    S : 5,
+    SW : 6,
+    E : 7,
+    C : 8,
+    CURSOR : 9,
+    // TODO, remainder
+}
+
+const MenuBackdropCenterColor = get_sprite_pixel_color(
+        menuBackdrop_sprite[0][MenuBackdropFrames.C], xy(0, 0))
+
+def MenuBackdropDraw(pos, tileWidth, tileHeight, z = 0):
+    const F = MenuBackdropFrames
+
+    draw_sprite(menuBackdrop_sprite[0][F.NW], pos,
+             0, nil, 1, z)
+
+    draw_sprite(menuBackdrop_sprite[0][F.NE],
+            pos + xy(8 * (tileWidth - 1), 0), 0, nil, 1, z)
+
+    draw_sprite(menuBackdrop_sprite[0][F.SW], pos + xy(0, 8 * (tileHeight - 1)),
+             0, nil, 1, z)
+
+    draw_sprite(menuBackdrop_sprite[0][F.SE],
+            pos + xy(8 * (tileWidth - 1), 8 * (tileHeight - 1)), 0, nil, 1, z)
+
+    local:
+        const workPos = pos + xy(8, 0)
+        const workPos2 = workPos + xy(0, 8 * (tileHeight - 1))
+        for x < tileWidth - 2:
+            draw_sprite(menuBackdrop_sprite[0][F.N], workPos,
+                    0, nil, 1, z)
+            workPos.x += 8
+            draw_sprite(menuBackdrop_sprite[0][F.S], workPos2,
+                    0, nil, 1, z)
+            workPos2.x += 8
+
+
+    local:
+        const workPos = pos + xy(0, 8)
+        const workPos2 = workPos + xy(8 * (tileWidth - 1), 0)
+        for x < tileHeight - 2:
+            draw_sprite(menuBackdrop_sprite[0][F.E], workPos,
+                    0, nil, 1, z)
+            workPos.y += 8
+            draw_sprite(menuBackdrop_sprite[0][F.W], workPos2,
+                    0, nil, 1, z)
+            workPos2.y += 8
+
+    draw_rect(pos + xy(tileWidth * 4, tileHeight * 4),
+            xy((tileWidth - 2) * 8, (tileHeight - 2) * 8),
+                    MenuBackdropCenterColor, nil, 0, z)
+
+
+// TODO, optional tile padding
+
+def Menu(labelNames_, selectedIndex_ = 0, itemExtraDrawFnc_ = nil):
+    const menu = {
+        labelNames : labelNames_,
+        selectedIndex : selectedIndex_,
+        itemExtraDrawFnc : itemExtraDrawFnc_,
+    }
+
+    let maxLength = 0
+    for labelName in labelNames_:
+        maxLength = max(size(labelName), maxLength)
+
+    menu.maxLabelLength = maxLength
+
+    return menu
+
+def MenuGetTileSize(menu):
+    return xy(menu.maxLabelLength + 4, size(menu.labelNames) * 2 + 1)
+
+def MenuGetPixelSize(menu):
+    return MenuGetTileSize(menu) * xy(8, 8)
+
+def MenuDraw(menu, pos, z = 0, onlySelected = false):
+    const tileSize = MenuGetTileSize(menu)
+    MenuBackdropDraw(pos, tileSize.x, tileSize.y, z)
+
+    const workPos = pos + xy(16, 8)
+    let i = 0
+    for labelName in menu.labelNames:
+        
+        if not onlySelected or i == menu.selectedIndex:
+            DrawStandardText(workPos, labelName, z)
+        
+        if not onlySelected and i == menu.selectedIndex:
+            draw_sprite(menuBackdrop_sprite[0][MenuBackdropFrames.CURSOR],
+                    workPos - xy(8, 0), 0, nil, 1, z)
+        ++i
+
+        workPos.y += 16
+
+def MenuStep(menu, joyIdx):
+    if menu.selectedIndex and JoyNewPress(joyIdx, JoyStateKeys.UP):
+        --menu.selectedIndex
+    else if (menu.selectedIndex < size(menu.labelNames) - 1
+            and JoyNewPress(joyIdx, JoyStateKeys.DOWN)):
+        ++menu.selectedIndex
+    else if JoyNewPress(joyIdx, JoyStateKeys.YES):
+        return 1
+    else if JoyNewPress(joyIdx, JoyStateKeys.NO):
+        return -1
+
+    return nil
+
+def MenuGetIndex(menu):
+    return menu.selectedIndex
+
+def MenuSetIndex(menu, idx):
+    menu.selectedIndex = idx
+
+
+
+MenuStep.Cancel = -1
+
+
+
+
+
+
+
+

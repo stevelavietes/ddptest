@@ -1,0 +1,10 @@
+{
+    "url": "winLose.png",
+    "sprite_size": {
+        "x": 32,
+        "y": 24
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+    "default_frames": 1
+}

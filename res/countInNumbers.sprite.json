@@ -1,0 +1,10 @@
+{
+    "url": "countInNumbers.png",
+    "sprite_size": {
+        "x": 16,
+        "y": 24
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+    "default_frames": 1
+}

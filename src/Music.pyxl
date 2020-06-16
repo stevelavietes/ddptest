@@ -1,0 +1,58 @@
+
+
+let introAudio = nil
+let mainAudio = nil
+let panicAudio = nil
+
+
+def MusicClear():
+    if introAudio:
+        stop_audio(introAudio)
+        introAudio = nil
+
+    if mainAudio:
+        stop_audio(mainAudio)
+        mainAudio = nil
+
+    if panicAudio:
+        stop_audio(panicAudio)
+        panicAudio = nil
+
+
+def MusicBegin():
+    MusicClear()
+    introAudio = play_sound(plunkyIntro_sound)
+
+def MusicStep():
+    if introAudio:
+        if get_audio_status(introAudio).state == "ENDED":
+            introAudio = nil
+            mainAudio = play_sound(plunkyMain_sound, true)
+
+def MusicSetPanic(state):
+    
+    if state:
+        if introAudio:
+            stop_audio(introAudio)
+            introAudio = nil
+
+        if mainAudio:
+            stop_audio(mainAudio)
+
+        panicAudio = play_sound(plunkyPanic_sound, true)
+        
+
+    else:
+        if panicAudio:
+            stop_audio(panicAudio)
+            panicAudio = nil
+
+        if introAudio:
+            stop_audio(introAudio)
+            introAudio = nil
+
+        if mainAudio:
+            resume_audio(mainAudio)
+        else:
+            mainAudio = play_sound(plunkyMain_sound, true)
+

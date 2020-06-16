@@ -1,0 +1,12 @@
+{
+    "url": "cursor.png",
+    "sprite_size": {
+        "x": 40,
+        "y": 24
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+    "transpose": true,
+    "default_frames": 1,
+    "pivot" : {"x" : 0, "y" : 0}
+}

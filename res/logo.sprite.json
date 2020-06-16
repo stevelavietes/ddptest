@@ -1,0 +1,11 @@
+{
+    "url": "logo.png",
+    "sprite_size": {
+        "x": 152,
+        "y": 56
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+    "transpose": false,
+    "default_frames": 1
+}

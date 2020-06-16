@@ -1,0 +1,58 @@
+GameStart
+════════════════════════════════════════════════════════════════════════
+
+enter
+────────────────────────────────────────────────────────────────────────
+
+set_background(BorderBgColor)
+set_random_seed()
+
+const boardWidth = BoardWidth
+const seed = local_time().millisecond
+
+remove_all(Boards)
+
+push(Boards, Board(boardWidth, xy(16, 28), CursorsPerBoard, 0, seed))
+push(Boards, Board(boardWidth, xy(384 - 16 - boardWidth * 16, 28),
+        CursorsPerBoard, 1, seed))
+
+for board in Boards:
+    BoardFill(board, 5)
+
+Boards[0].otherBoard = Boards[1]
+Boards[1].otherBoard = Boards[0]
+
+
+// testing
+// Boards[1].cursors[1].joyIdx = 1
+// Boards[0].cursors[1].joyIdx = 2
+
+ClockReset(g_clock)
+
+
+frame
+────────────────────────────────────────────────────────────────────────
+
+if not DO_COUNT_IN:
+    set_mode(Play)
+
+GlobalsStep()
+
+
+DashboardDraw()
+
+for board in Boards:
+    BoardStep(board)
+    BoardDraw(board)
+
+if mode_frames mod 60 == 0:
+    play_sound(cursor_sound)
+
+if mode_frames >= 180:
+    set_mode(Play)
+else:
+    const alpha = 1.0 - ((mode_frames mod 60) / 59.0)
+    const spr = countInNumbers_sprite[floor(mode_frames / 60)][0]
+    for board in Boards:
+        draw_sprite(spr, BoardGetCenter(board), 0, nil, alpha)
+

@@ -1,0 +1,623 @@
+//----------------------------------------------------------------------------
+
+const LevelConstants = {
+    RaiseIntervalDecrementCount : [
+        1000, 800, 600, 400, 360, 320, 310, 300, 300, 300
+    ],
+
+    RaiseIntervalStartCount : [
+        60, 48, 38, 26, 20, 16, 12, 10, 9, 8
+    ],
+
+    RaiseIntervalStartCountPerLevel_FirstRaise : [
+        66, 56, 42, 32, 26, 20, 18, 18, 18, 18
+    ],
+
+    AutoRaiseHoldMult : [
+        60, 55, 50, 40, 45, 40, 35, 30, 30, 30
+    ],
+
+    TOPPEDOUTBOARDFRAMELIMIT : 120,
+}
+
+const GameState = {
+    INTRO : 0,
+    PLAY : 1,
+    WON : 2,
+    LOST : 3,
+}
+
+
+const BorderBgColor = get_sprite_pixel_color(
+        borders_sprite[1][0], xy(0, 0))
+
+
+
+def Board(width_, pos_, numCursors_, boardIdx_, seed_):
+
+    const board = {
+        state : GameState.PLAY,
+
+        pos : pos_,
+        sizeX : width_,
+        sizeY : 13,
+        
+        boardIdx : boardIdx_,
+
+        blockFrameAnimCount : 0,
+        blockFrame : 0,
+
+        blocks : [],
+
+        rowStart : 0,
+        raiseOffset : 0,
+
+        autoRaiseCounter : 0,
+        haveAutoRaisedOnce : false,
+        autoRaiseDecrementCounter : 0,
+        autoRaiseHold : 0,
+        manualRaise : false,
+
+        blockRandom : make_random(seed_),
+
+        cursors : [],
+
+        matchPool : LinkedPool(width_ * 12, MatchRecord),
+        bubblePool : LinkedPool(32, Bubble),
+
+
+        pendingGarbage : [],
+        pendingGarbageOffset : 0,
+
+        shakeCount : 0,
+        shakePos : 0,
+        shakeData : nil,
+
+        columnsTopped : [],
+        anyColumnsTopped : false,
+        squashCount : 0,
+        squashFrame : 0,
+
+        toppedOutFrameCount : 0,
+
+        level : Level[boardIdx_],
+    }
+
+    board.blockTypeCount = 5
+    if width_ > 6:
+        if board.level > 0:
+            board.blockTypeCount = 6
+    else:
+        if board.level > 6:
+            board.blockTypeCount = 6
+
+
+
+    
+
+    board.autoRaiseSpeed = LevelConstants.RaiseIntervalStartCount[board.level]
+    board.autoRaiseSpeed_first = (
+            LevelConstants.RaiseIntervalStartCountPerLevel_FirstRaise[
+                    board.level])
+
+    board.autoRaiseDecrementCountLimit = (
+            LevelConstants.RaiseIntervalDecrementCount[board.leve])
+
+    board.autoRaiseHoldMult = (
+            LevelConstants.AutoRaiseHoldMult[board.level])
+
+
+
+
+
+    // ----
+
+    for y < board.sizeY:
+        const row = []
+        push(board.blocks, row)
+        for x < board.sizeX:
+            push(row, Block())
+
+    // ----
+
+    board.horzRun = {
+        type : 0,
+        length : 0,
+    }
+
+    board.vertRuns = []
+    for i < board.sizeX:
+        push(board.vertRuns, clone(board.horzRun))
+        push(board.columnsTopped, false)
+
+    // ----
+
+    const cursor1 = Cursor(0, boardIdx_ * numCursors_, boardIdx_ * 8)
+    cursor1.posY = 6
+    push(board.cursors, cursor1)
+
+    if numCursors_ > 1:
+        const cursor2 = Cursor(
+                1, boardIdx_ * numCursors_ + 1, boardIdx_ * 8 + 16)
+        cursor2.posX = width_ - 2
+        cursor2.posY = 6
+        push(board.cursors, cursor2)
+
+    // ----
+
+    return board
+
+//----------------------------------------------------------------------------
+
+def BoardDestory(board):
+    LinkedPoolDestroy(board.matchPool)
+    LinkedPoolDestroy(board.bubblePool)
+
+//----------------------------------------------------------------------------
+
+const MANUALRAISEREPEATFRAMES = 5
+
+def BoardStep(board):
+    with blockFrameAnimCount, blockFrame in board:
+        blockFrameAnimCount += 1
+        if blockFrameAnimCount > 3:
+            blockFrameAnimCount = 0
+            if blockFrame >= 15:
+                blockFrame = 0
+            else:
+                blockFrame += 1
+
+    if board.shakeData and board.shakeCount:
+        --board.shakeCount
+        board.shakePos = board.shakeData[board.shakeCount]
+
+    // TODO, exit early if we are not playing
+    if get_mode() != Play:
+        return
+
+
+
+    ++board.autoRaiseDecrementCounter
+    if board.autoRaiseDecrementCounter >= board.autoRaiseDecrementCountLimit:
+        board.autoRaiseDecrementCounter = 0
+        if board.autoRaiseSpeed > 3:
+            --board.autoRaiseSpeed
+
+    BoardProcessPendingGarbage(board)
+
+    // ----
+
+    let raisePressed = false
+    for cursor in board.cursors:
+        if JoyPress(cursor.joyIdx, JoyStateKeys.RAISE):
+            raisePressed = true
+            break
+
+    if raisePressed:
+        let shouldRaise = true
+        if not board.raiseOffset:
+            let newRaisePressed = false
+            for cursor in board.cursors:
+                if JoyNewPress(cursor.joyIdx, JoyStateKeys.RAISE):
+                    newRaisePressed = true
+                    break
+            if newRaisePressed:
+                 board.manualRaise = MANUALRAISEREPEATFRAMES
+            else:
+                board.manualRaise -= 1
+                if board.manualRaise > 0:
+                    shouldRaise = false
+        else:
+            board.manualRaise = MANUALRAISEREPEATFRAMES
+
+        if shouldRaise:
+            BoardRaise(board)
+
+    else if board.raiseOffset and board.manualRaise:
+        BoardRaise(board)
+    else:
+        if board.autoRaiseHold:
+            --board.autoRaiseHold
+
+        board.manualRaise = 0
+        if not board.matchPool.first:
+            if not board.autoRaiseHold:
+                ++board.autoRaiseCounter
+                if board.autoRaiseCounter >= (
+                        if board.haveAutoRaisedOnce
+                                then board.autoRaiseSpeed
+                                else board.autoRaiseSpeed_first):
+                    board.haveAutoRaisedOnce = true
+                    board.autoRaiseCounter = 0
+                    BoardRaise(board)
+
+
+
+    // ----
+
+    if size(board.cursors) == 2:
+        CursorStep(board.cursors[0], board, board.cursors[1])
+        CursorStep(board.cursors[1], board, board.cursors[0])
+    else:
+        CursorStep(board.cursors[0], board, nil)
+
+    // ----
+
+    let bubble = board.bubblePool.first
+    while bubble:
+        const nextBubble = bubble.next_
+        BubbleStep(bubble, board.bubblePool)
+        bubble = nextBubble
+
+    BoardProcessGravityAndMatches(board)
+
+    // squashing
+    ++board.squashCount
+    if board.squashCount == 3:
+        board.squashCount = 0
+        board.squashFrame = (board.squashFrame + 1) mod 6
+
+    let anyColumnsTopped = false
+    
+    const topRow = BoardGetRow(board, 0)
+    const nextRow = BoardGetRow(board, 1)
+    const testRows = [topRow, nextRow]
+    
+    let anyFullTop = false
+
+    for x < board.sizeX:
+        board.columnsTopped[x] = false
+        for row in testRows:
+            if row[x].type and row[x].fallFrame != g_frameNum:
+                board.columnsTopped[x] = true
+                anyColumnsTopped = true
+                if not anyFullTop and row == topRow:
+                    anyFullTop = true
+                break
+
+    if anyColumnsTopped != board.anyColumnsTopped:
+        board.anyColumnsTopped = anyColumnsTopped
+        // TODO, panic music toggle
+
+    if anyFullTop:
+        if not board.autoRaiseHold and not board.matchPool.first:
+            ++board.toppedOutFrameCount
+            if (board.toppedOutFrameCount
+                    > LevelConstants.TOPPEDOUTBOARDFRAMELIMIT):
+                BoardLose(board)
+    else:
+        board.toppedOutFrameCount = 0;
+
+//----------------------------------------------------------------------------
+
+def BoardDraw(board):
+    
+    // draw border
+    local:
+        const width = board.sizeX * 16
+        const height = board.sizeY * 16
+
+
+        const startPos = board.pos + xy(0, -1)
+        draw_rect(xy(startPos.x + width / 2, startPos.y + height / 2),
+                xy(width + 4, height), gray(0.1) )
+
+        for x < board.sizeX * 2:
+            // top row twice
+            draw_sprite(borders_sprite[1][0], startPos + xy(x * 8, -16),
+                    0, xy(1, -1), 1.0, ZLayers.MASK)
+            
+            draw_sprite(borders_sprite[1][0], startPos + xy(x * 8, -8),
+                    0, xy(1, -1), 1.0, ZLayers.MASK)
+            
+            draw_sprite(borders_sprite[2][0], startPos + xy(x * 8, 0),
+                    0, xy(1, -1), 1.0, ZLayers.MASK)
+            draw_sprite(borders_sprite[6][0], startPos + xy(x * 8, height - 16),
+                    0, nil, 1.0, ZLayers.MASK)
+
+        for y < board.sizeY * 2:
+            draw_sprite(borders_sprite[4][0], startPos + xy(0, y * 8),
+                    0, xy(-1, 1), 1.0, ZLayers.MASK)
+            draw_sprite(borders_sprite[4][0], startPos + xy(width, y * 8),
+                    0, nil, 1.0, ZLayers.MASK)
+
+        draw_sprite(borders_sprite[5][0], startPos,
+                    0, xy(-1, -1), 1.0, ZLayers.MASK)
+        draw_sprite(borders_sprite[5][0], startPos + xy(width, 0),
+                    0, xy(1, -1), 1.0, ZLayers.MASK)
+
+        draw_sprite(borders_sprite[5][0], startPos + xy(0, height - 16),
+                    0, xy(-1, 1), 1.0, ZLayers.MASK)
+        draw_sprite(borders_sprite[5][0], startPos + xy(width, height - 16),
+                    0, xy(1, 1), 1.0, ZLayers.MASK)
+
+
+
+
+
+
+        if board.autoRaiseHold:
+            const bottom = board.pos.y + (board.sizeY - 1) * 16 - 2
+            const left = board.pos.x - 2
+            const top = max(board.pos.y, bottom - board.autoRaiseHold / 2)
+            draw_line(xy(left, bottom), xy(left, top),
+                    rgb(0, 1, 0), ZLayers.MASK, 1)
+
+        if board.toppedOutFrameCount:
+            const right = board.pos.x + (board.sizeX * 16) + 1
+            const height = (board.sizeY - 1) * 16 - 2
+            const bottom = board.pos.y + height
+            const normTop = (board.toppedOutFrameCount
+                    / LevelConstants.TOPPEDOUTBOARDFRAMELIMIT)
+            const top = max(board.pos.y, bottom - normTop * height)
+            draw_line(xy(right, bottom), xy(right, top),
+                    rgb(1, 0, 0), ZLayers.MASK, 1)
+
+        /*
+        // XXX temporary wins display
+        if board.otherBoard:
+            const winsStr = format_number(min(99, Wins[board.boardIdx]), "00")
+            if board.boardIdx:
+                DrawStandardText(xy(board.pos.x + width, 1), winsStr, ZLayers.MASK)
+            else:
+                DrawStandardText(xy(board.pos.x - 16, 1), winsStr, ZLayers.MASK)
+
+        // XXX temporary level display
+        if board.boardIdx:
+            LevelThermometerDraw(LevelThermometer(
+                    xy(board.pos.x + width - 48, -9), board.boardIdx, 0), ZLayers.MASK)
+        else:
+            LevelThermometerDraw(LevelThermometer(
+                    xy(board.pos.x, -9), board.boardIdx, 0), ZLayers.MASK)
+        */
+
+
+
+
+
+
+    const pos = BoardGetScreenPos(board)
+    const orgY = pos.y
+
+    for y < board.sizeY:
+        const row = BoardGetRow(board, y)
+        const isBottomRow = y == board.sizeY - 1
+        const spriteFrame = if isBottomRow then -1 else board.blockFrame
+        const posY = y * 16 + orgY
+
+        for x < board.sizeX:
+            const block = row[x]
+            let columnFrame = spriteFrame
+            if not isBottomRow and board.columnsTopped[x]:
+                columnFrame = SquashFrames[board.squashFrame] - BlockFrame.IDLE
+
+            BlockDraw(block, xy(pos.x + x * 16, posY), columnFrame)
+
+    if get_mode() == GameStart:
+        for cursor in board.cursors:
+            CursorDraw(cursor, xy(pos.x, orgY), board)
+
+
+    if get_mode() != Play:
+        return
+
+
+    let record = board.matchPool.first
+    while record:
+        if record.puffCount < 18:
+            const blockPos = xy(pos.x + record.x * 16, orgY + record.y * 16)
+            const color = rgb(1, 1, 1)
+            const rectSize = 4
+            const offset = max(0, record.puffCount - 1)
+            const gravity = xy(0, offset / 2)
+
+            const t = record.puffCount / 8.0
+            const s = sin(t)
+            const c = cos(t)
+            
+
+
+            const p = [
+                xy(-offset, -offset),
+                xy(offset, -offset),
+                xy(-offset, offset),
+                xy(offset, offset)
+            ]
+            
+            def r(idx):
+                return xy(
+                        p[idx].x * c - p[idx].y * s,
+                        p[idx].x * s + p[idx].y * c)
+
+            draw_disk(blockPos + xy(4, 4) + r(0) + gravity,
+                    rectSize, color, false, ZLayers.OVER)
+            draw_disk(blockPos + xy(12, 4) + r(1) + gravity,
+                    rectSize, color, false, ZLayers.OVER)
+            draw_disk(blockPos + xy(4, 12) + r(2) + gravity,
+                    rectSize, color, false, ZLayers.OVER)
+            draw_disk(blockPos + xy(12, 12) + r(3) + gravity,
+                    rectSize, color, false, ZLayers.OVER)
+
+        record = record.next_
+
+    for cursor in board.cursors:
+        CursorDraw(cursor, xy(pos.x, orgY), board)
+
+    let bubble = board.bubblePool.first
+    while bubble:
+        const nextBubble = bubble.next_
+        BubbleDraw(bubble)
+        bubble = nextBubble
+
+    BoardDrawPendingGarbage(board)
+
+
+//----------------------------------------------------------------------------
+
+def BoardGetRow(board, y):
+    return board.blocks[(y + board.rowStart) mod board.sizeY]
+
+def BoardGetScreenPos(board):
+    return board.pos - xy(0, board.raiseOffset + board.shakePos)
+
+def BoardGetCenter(board):
+    return xy(
+        board.pos.x + board.sizeX * 8,
+        board.pos.y + board.sizeY * 8,
+    )
+
+//----------------------------------------------------------------------------
+
+def BoardFill(board, startRow):
+
+    let customCount = 0
+    const customBlockTypes = [0, 0, 0, 0, 0, 0]
+    let horzRunType = 0
+    let vertRunType = 0
+
+    for y < startRow:
+        const row = BoardGetRow(board, y)
+        for x < board.sizeX:
+            const block = row[x]
+            block.state = BlockState.IDLE
+            block.type = BlockType.NONE
+
+    const mid1 = floor(board.sizeX / 2)
+    const mid2 = mid1 - 1
+    
+
+    let y = board.sizeY - 1
+    while y >= startRow:
+        const row = BoardGetRow(board, y)
+        for x < board.sizeX:
+            const block = row[x]
+            if (y < board.sizeY - 3 and (x == mid1 or x == mid2)):
+                block.type = 0
+                continue
+
+            horzRunType = 0
+            if x > 1:
+                const checkType = row[x - 1].type
+                if checkType == row[x - 2].type:
+                    horzRunType = checkType
+
+            vertRunType = 0
+            if y < board.sizeY - 2:
+                const row2 = BoardGetRow(board, y + 1)
+                const row3 = BoardGetRow(board, y + 2)
+                const checkType = row2[x].type
+                if checkType == row3[x].type:
+                    vertRunType = checkType
+
+            if horzRunType or vertRunType:
+                customCount = board.blockTypeCount
+                if horzRunType:
+                    customCount -= 1
+                if vertRunType and vertRunType != horzRunType:
+                    customCount -= 1
+
+                let ioff = 0
+                for i < board.blockTypeCount:
+                    const blockType = i + 1
+                    if blockType != horzRunType and blockType != vertRunType:
+                        customBlockTypes[i - ioff] = blockType
+                    else:
+                        ioff += 1
+                    block.type = customBlockTypes[random_integer(
+                            0, customCount - 1, board.blockRandom)]
+
+            else:
+                block.type = random_integer(1, board.blockTypeCount, board.blockRandom)
+
+        y -= 1
+
+//----------------------------------------------------------------------------
+
+def BoardRaise(board):
+    // don't raise if we're at the top
+    const topRow = BoardGetRow(board, 0)
+    if board.raiseOffset:
+        for block in topRow:
+            if block.type:
+                board.manualRaise = false
+                return
+
+    board.raiseOffset = (board.raiseOffset + 1) mod 16
+    if not board.raiseOffset:
+        // adjust cursors
+        for cursor in board.cursors:
+            if cursor.posY:
+                --cursor.posY
+
+        board.rowStart = (board.rowStart + 1) mod board.sizeY
+
+        const bottomRow = BoardGetRow(board, board.sizeY - 1)
+
+        let runLen = 0
+        let lastType = 255
+
+        for block in bottomRow:
+            let blockType = random_integer(
+                    0, board.blockTypeCount - 1, board.blockRandom)
+
+            if blockType == lastType:
+                ++runLen
+                if runLen > 2:
+                    blockType += random_integer(
+                        1, board.blockTypeCount - 2, board.blockRandom)
+                    blockType = blockType mod board.blockTypeCount
+                    runLen = 1
+            else:
+                runLen = 1
+
+            // bang block has one in sixteen chance
+            if random_integer(0, 15, board.blockRandom) < 1:
+                blockType = BlockType.BANG - 1
+                runLen = 1
+
+            block.count = 0
+            block.chain = 0
+            block.state = BlockState.IDLE
+            block.type = blockType + 1
+            lastType = blockType
+
+        // TODO adjust match records
+
+        let record = board.matchPool.first
+        while record:
+            if record.y:
+                record.y -= 1
+            record = record.next_
+
+    else if board.raiseOffset == 3:
+        for cursor in board.cursors:
+            if not cursor.state and cursor.posY == 0:
+                cursor.posY = 1
+
+//----------------------------------------------------------------------------
+
+def BoardLose(board):
+    play_sound(end_sound)
+
+    board.state = GameState.LOST
+    if board.otherBoard:
+        board.otherBoard.state = GameState.WON
+
+        ++Wins[board.otherBoard.boardIdx]
+
+    board.shakeData = ShakeFramesLarge
+    board.shakeCount = size(board.shakeData)
+
+    for row in board.blocks:
+        for block in row:
+            if block.type:
+                block.count = MatchConstants.FLASHFRAMES
+                block.count2 = MatchConstants.FLASHFRAMES + 10
+                if (block.state == BlockState.GARBAGE
+                        or block.state == BlockState.GARBAGEMATCHING):
+                    block.state = BlockState.GARBAGEMATCHING
+                else:
+                    block.state = BlockState.MATCHING
+
+
+

@@ -1,0 +1,49 @@
+GameEnd
+════════════════════════════════════════════════════════════════════════
+
+
+const testMenu = Menu(["RETRY", "QUIT"], 0)
+const testMenuPos = xy(SCREEN_SIZE.x / 2 - MenuGetPixelSize(testMenu).x / 2, 100)
+
+
+enter
+────────────────────────────────────────────────────────────────────────
+
+MenuSetIndex(testMenu, 0)
+
+frame
+────────────────────────────────────────────────────────────────────────
+
+DashboardDraw()
+
+GlobalsStep()
+for board in Boards:
+    BoardStep(board)
+    BoardDraw(board)
+
+    const center = BoardGetCenter(board) - xy(0, 16)
+    const offset1 = sin(mode_frames / 10) * 12
+    const offset2 = sin(mode_frames / 20) * 3
+
+
+    if board.state == GameState.WON:
+        draw_sprite(winLose_sprite[0][0], center + xy(offset2, offset1), 0, nil, 1, ZLayers.OVER)
+    else:
+        draw_sprite(winLose_sprite[0][1], center + xy(offset1, offset2), 0, nil, 1, ZLayers.OVER)
+
+
+if mode_frames > 180:
+    MenuDraw(testMenu, testMenuPos - xy(0, max(0, (192 - mode_frames) * 12)), ZLayers.OVER)
+    
+    if mode_frames == 192:
+        play_sound(drop_sound)
+
+    if MenuStep(testMenu, 0):
+        const result = MenuGetIndex(testMenu)
+        if result == 0:
+            set_mode(GameStart)
+        else:
+            set_mode(MainMenu)
+
+
+
