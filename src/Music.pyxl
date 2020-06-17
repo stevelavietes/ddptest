@@ -30,7 +30,6 @@ def MusicStep():
             mainAudio = play_sound(plunkyMain_sound, true)
 
 def MusicSetPanic(state):
-    
     if state:
         if introAudio:
             stop_audio(introAudio)
@@ -40,7 +39,6 @@ def MusicSetPanic(state):
             stop_audio(mainAudio)
 
         panicAudio = play_sound(plunkyPanic_sound, true)
-        
 
     else:
         if panicAudio:

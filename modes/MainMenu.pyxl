@@ -57,7 +57,10 @@ draw_sprite(logoWaves_sprite[floor((mode_frames mod 48) / 2)][0], logoPos)
 const config = configs[MenuGetIndex(menu)]
 if menuDepths[0] == 0:
     MenuDraw(menu, menuPos)
-    if MenuStep(menu, 0) != nil:
+    // do not track input on the first frame as restarting from the system
+    // menu will reset joystate in Input.pyxl and register the button press as
+    // a new press
+    if mode_frames and MenuStep(menu, 0) != nil:
         CursorsPerBoard = config.cursors
         BoardWidth = config.width
         
