@@ -53,7 +53,9 @@ def LevelThermometerDraw(therm, z = 0):
 def LevelThermometerStep(therm):
     if Level[therm.index] and JoyNewPress(therm.joyIdx, JoyStateKeys.LEFT):
         --Level[therm.index]
-    
+        play_sound(cursor_sound)
+
     if (Level[therm.index] < 9
             and JoyNewPress(therm.joyIdx, JoyStateKeys.RIGHT)):
         ++Level[therm.index]
+        play_sound(cursor_sound)
