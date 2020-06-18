@@ -327,10 +327,11 @@ def BoardBreakGarbage(board, x_, y_, baseDuration, chain_, seqIdxStart):
 
         --y
 
+
     if maxDur > dur:
         while record:
             record.dur = maxDur
-            record = record.prev_
+            record = record.seqPrev
 
     --g_breakGarbageDepth_
 

@@ -175,6 +175,9 @@ def BoardStep(board):
     if get_mode() != Play:
         return
 
+    if DEBUG_GARBAGE:
+        if JoyNewPress(board.cursors[0].joyIdx, JoyStateKeys.MENU):
+            BoardAppendGarbage(board, 4, 1, 0)
 
 
     ++board.autoRaiseDecrementCounter

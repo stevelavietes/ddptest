@@ -297,7 +297,7 @@ def CursorCanSwap(cursor, block, board, idx):
     return true
 
 def StateIsSwappable_(state):
-    return state == BlockState.IDLE or state == BlockState.PostClearHold
+    return state == BlockState.IDLE or state == BlockState.POSTCLEARHOLD
 
 
 
