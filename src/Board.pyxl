@@ -18,6 +18,18 @@ const LevelConstants = {
     ],
 
     TOPPEDOUTBOARDFRAMELIMIT : 120,
+
+    SOLOGARBABEPROBABILITY : [
+        32, 40, 48, 56, 64, 72, 80, 80, 88, 96,
+    ],
+
+    SOLOGARBAGESIZES : [
+        xy(3, 1), xy(4, 1), xy(5, 1), xy(6, 1), xy(6, 2),
+    ],
+
+    SOLOGARBAGERANGE : [
+        1, 1, 1, 2, 2, 3, 3, 3, 4, 4,
+    ]
 }
 
 const GameState = {
@@ -81,6 +93,8 @@ def Board(width_, pos_, numCursors_, boardIdx_, seed_):
         toppedOutFrameCount : 0,
 
         level : Level[boardIdx_],
+
+        score : 0,
     }
 
     board.blockTypeCount = 5
@@ -101,7 +115,7 @@ def Board(width_, pos_, numCursors_, boardIdx_, seed_):
                     board.level])
 
     board.autoRaiseDecrementCountLimit = (
-            LevelConstants.RaiseIntervalDecrementCount[board.leve])
+            LevelConstants.RaiseIntervalDecrementCount[board.level])
 
     board.autoRaiseHoldMult = (
             LevelConstants.AutoRaiseHoldMult[board.level])
@@ -196,6 +210,9 @@ def BoardStep(board):
             raisePressed = true
             break
 
+    if board.autoRaiseHold:
+        --board.autoRaiseHold
+
     if raisePressed:
         let shouldRaise = true
         if not board.raiseOffset:
@@ -219,9 +236,6 @@ def BoardStep(board):
     else if board.raiseOffset and board.manualRaise:
         BoardRaise(board)
     else:
-        if board.autoRaiseHold:
-            --board.autoRaiseHold
-
         board.manualRaise = 0
         if not board.matchPool.first:
             if not board.autoRaiseHold:
@@ -591,6 +605,17 @@ def BoardRaise(board):
             if record.y:
                 record.y -= 1
             record = record.next_
+
+        if g_gameMode == GameMode.SOLO:
+            if (random_integer(0, 255) <
+                    LevelConstants.SOLOGARBABEPROBABILITY[board.level]):
+                const garbageSize = LevelConstants.SOLOGARBAGESIZES[
+                        random_integer(0,
+                                LevelConstants.SOLOGARBAGERANGE[board.level])]
+                BoardAppendGarbage(board, garbageSize.x, garbageSize.y, 60)
+
+
+
 
     else if board.raiseOffset == 3:
         for cursor in board.cursors:

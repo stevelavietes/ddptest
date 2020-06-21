@@ -439,12 +439,15 @@ def BoardProcessGravityAndMatches(board):
             bubble.pos.y = boardScreenPos.y + state.newMatchMinY * 16
             bubble.value = 4
 
-            bubble.garbageTarget = board.otherBoard
+            bubble.garbageTarget = if board.otherBoard then board.otherBoard else board.boardIdx
             bubble.garbageLevel = state.newMatchMetalCount - 2
             bubble.garbageMult = 1
             bubble.metal = true
 
-            holdTotal = board.otherBoard.sizeX * bubble.garbageLevel
+            if board.otherBoard:
+                holdTotal = board.otherBoard.sizeX * bubble.garbageLevel
+            else:
+                holdTotal = board.sizeX * bubble.garbageLevel
 
             SfxMatch(state.newMatchMetalCount - 2)
 
@@ -486,7 +489,9 @@ def BoardProcessGravityAndMatches(board):
 
         if bubble:
             // TODO, sfxmatch
-            bubble.garbageTarget = board.otherBoard
+            bubble.garbageTarget = if board.otherBoard then board.otherBoard else board.boardIdx
+            
+
             bubble.garbageLevel = state.newMatchCount
             bubble.garbageMult = state.newMatchChainMax
 

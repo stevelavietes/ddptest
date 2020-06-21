@@ -1,66 +1,78 @@
-// TODO
 
 
+const levelColor1_ = get_sprite_pixel_color(
+        dashboard_sprite[0][0], xy(6, 57))
 
+const levelColor2_ = get_sprite_pixel_color(
+        dashboard_sprite[0][0], xy(6, 58))
 
 
 def DashboardDraw():
-    const pos = xy(SCREEN_SIZE.x / 2, 180)
-    draw_sprite(dashboard_sprite[0][0], pos)
-
-    ClockDraw(g_clock, xy(g_clockPos.x, pos.y - 20))
-
-
-    let winIndex = nil
-    if get_mode() == GameEnd and mode_frames < 18:
-        for b at i in Boards:
-            if b.state == GameState.WON:
-                winIndex = i
-
-    for win at i in Wins:
-        const winStr = format_number(min(999, win), "0")
-        const centerX = pos.x - 16 + i * 32
-        DrawStandardText(xy(centerX - size(winStr) * 4, pos.y + 2), winStr)
-
-        if winIndex != nil and i == winIndex:
-            const center = xy(centerX, pos.y + 2)
-
-
-            draw_disk(xy(centerX, pos.y + 6) + xy(mode_frames, mode_frames),
-                    4, gray(1), false, ZLayers.OVER)
-            draw_disk(xy(centerX, pos.y + 6) + xy(-mode_frames, mode_frames),
-                    4, gray(1), false, ZLayers.OVER)
-            draw_disk(xy(centerX, pos.y + 6) + xy(mode_frames, -mode_frames),
-                    4, gray(1), false, ZLayers.OVER)
-            draw_disk(xy(centerX, pos.y + 6) + xy(-mode_frames, -mode_frames),
-                    4, gray(1), false, ZLayers.OVER)
-            
-
-
+    if g_gameMode == GameMode.SOLO:
         
+        const pos = xy(156, 66)
+        draw_sprite(dashboardSolo_sprite[0][0], pos)
 
+        ClockDraw(g_clock, pos + xy(-18, -30))
 
-    for level at i in Level:
-        const startX = pos.x - 32 + i * 32 + 6
+        DrawStandardText(pos + xy(-20, -9),
+                format_number(Boards[0].score, "00000"))
 
-        const endX = startX + (level + 1) * 2 - 2
-        const y = pos.y + 25
+        DrawStandardText(pos + xy(-27, 12),
+                format_number(61 - Boards[0].autoRaiseSpeed, "0"))
+
+        const startX = pos.x + 9
+
+        const endX = startX + Level[0] * 2 - 1
+        const y = pos.y + 15
         draw_line(xy(startX, y), xy(endX, y),
-                levelColor1)
+                levelColor1_)
         draw_line(xy(startX, y + 1), xy(endX, y + 1),
-                levelColor2)
+                levelColor2_)
 
 
 
+    else:
+        const pos = xy(SCREEN_SIZE.x / 2, 180)
+        draw_sprite(dashboard_sprite[0][0], pos)
+
+        ClockDraw(g_clock, xy(g_clockPos.x, pos.y - 20))
 
 
+        let winIndex = nil
+        if get_mode() == GameEnd and mode_frames < 18:
+            for b at i in Boards:
+                if b.state == GameState.WON:
+                    winIndex = i
 
+        for win at i in Wins:
+            const winStr = format_number(min(999, win), "0")
+            const centerX = pos.x - 16 + i * 32
+            DrawStandardText(xy(centerX - size(winStr) * 4, pos.y + 2), winStr)
 
-const levelColor1 = get_sprite_pixel_color(
-        dashboard_sprite[0][0], xy(6, 57))
+            if winIndex != nil and i == winIndex:
+                const center = xy(centerX, pos.y + 2)
 
-const levelColor2 = get_sprite_pixel_color(
-        dashboard_sprite[0][0], xy(6, 58))
+                draw_disk(xy(centerX, pos.y + 6) + xy(mode_frames, mode_frames),
+                        4, gray(1), false, ZLayers.OVER)
+                draw_disk(xy(centerX, pos.y + 6) + xy(-mode_frames, mode_frames),
+                        4, gray(1), false, ZLayers.OVER)
+                draw_disk(xy(centerX, pos.y + 6) + xy(mode_frames, -mode_frames),
+                        4, gray(1), false, ZLayers.OVER)
+                draw_disk(xy(centerX, pos.y + 6) + xy(-mode_frames, -mode_frames),
+                        4, gray(1), false, ZLayers.OVER)
+                
+
+        for level at i in Level:
+            const startX = pos.x - 32 + i * 32 + 6
+
+            const endX = startX + (level + 1) * 2 - 2
+            const y = pos.y + 25
+            draw_line(xy(startX, y), xy(endX, y),
+                    levelColor1_)
+            draw_line(xy(startX, y + 1), xy(endX, y + 1),
+                    levelColor2_)
+
 
 
 

@@ -6,6 +6,14 @@ const ZLayers = {
     OVER : 3,
 }
 
+const GameMode = {
+    DOUBLES : 0,
+    SINGLES : 1,
+    SOLO : 2,
+}
+
+let g_gameMode = GameMode.DOUBLES
+
 //----
 
 

@@ -74,16 +74,26 @@ def MenuBackdropDraw(pos, tileWidth, tileHeight, z = 0, a = 1):
 
 // TODO, optional tile padding
 
-def Menu(labelNames_, selectedIndex_ = 0, itemExtraDrawFnc_ = nil):
+const MenuItemCallbackMode = {
+    MEASURE : "MEASURE",
+    DRAW : "DRAW",
+}
+
+def Menu(labelNames_, selectedIndex_ = 0, itemCallback_ = nil):
     const menu = {
         labelNames : labelNames_,
         selectedIndex : selectedIndex_,
-        itemExtraDrawFnc : itemExtraDrawFnc_,
+        itemCallback : itemCallback_,
     }
 
     let maxLength = 0
-    for labelName in labelNames_:
-        maxLength = max(size(labelName), maxLength)
+    for labelName at i in labelNames_:
+        let tileWidth = size(labelName)
+        if itemCallback_:
+            tileWidth = itemCallback_(
+                    MenuItemCallbackMode.MEASURE, i, tileWidth)
+
+        maxLength = max(tileWidth, maxLength)
 
     menu.maxLabelLength = maxLength
 
@@ -104,8 +114,10 @@ def MenuDraw(menu, pos, z = 0, onlySelected = false):
     for labelName in menu.labelNames:
         
         if not onlySelected or i == menu.selectedIndex:
-            DrawStandardText(workPos, labelName, z)
-        
+            const nextPos = DrawStandardText(workPos, labelName, z)
+            if menu.itemCallback:
+                menu.itemCallback(MenuItemCallbackMode.DRAW, i, nextPos)
+
         if not onlySelected and i == menu.selectedIndex:
             draw_sprite(menuBackdrop_sprite[0][MenuBackdropFrames.CURSOR],
                     workPos - xy(8, 0), 0, nil, 1, z)

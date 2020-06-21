@@ -3,7 +3,28 @@ MainMenu
 
 const logoPos = xy(SCREEN_SIZE.x / 2, SCREEN_SIZE.y / 2 - 16)
 
-const menu = Menu(["DOUBLES", "SINGLES"], 0)
+
+
+const iconOffsets = [
+    [12, 13, 11, 14, 15],
+    [-1, 10, 11, 10],
+    [-1, -1, -1, -1, 10, 11, 16, 17],
+]
+
+
+def MainMenuItemCallback(mode, index, arg):
+    if mode == MenuItemCallbackMode.MEASURE:
+        return arg + 4
+    else if mode == MenuItemCallbackMode.DRAW:
+        const workPos = clone(arg)
+        const v = iconOffsets[index]
+        for offset in v:
+            if offset >= 0:
+                draw_sprite(menuBackdrop_sprite[0][offset], workPos, 
+                        0, nil, 1, ZLayers.OVER)
+            workPos.x += 8
+
+const menu = Menu(["DOUBLES", "SINGLES", "SOLO"], 0, MainMenuItemCallback)
 const menuPos = xy(
         SCREEN_SIZE.x / 2 - MenuGetPixelSize(menu).x / 2, 134)
 
@@ -19,6 +40,13 @@ const configs = [
         width : 6,
         boards : 2,
         joyIdxs : [0, 1],
+    },
+
+    {
+        cursors : 1,
+        width : 6,
+        boards : 1,
+        joyIdxs : [0],
     },
 ]
 
@@ -72,9 +100,13 @@ if menuDepths[0] == 0:
         push(levelTherms, LevelThermometer(
                 xy(thermInset, thermY), 0,
                         config.joyIdxs[0]))
-        push(levelTherms, LevelThermometer(
-                xy(SCREEN_SIZE.x - thermWidth - thermInset, thermY), 1,
-                        config.joyIdxs[1]))
+        if config.boards > 1:
+            push(levelTherms, LevelThermometer(
+                    xy(SCREEN_SIZE.x - thermWidth - thermInset, thermY), 1,
+                            config.joyIdxs[1]))
+
+        g_gameMode = MenuGetIndex(menu)
+
 else:
     
     let anySelected = false

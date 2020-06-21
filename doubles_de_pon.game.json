@@ -1,116 +1,117 @@
 {
-   "title": "Doubles de Pon",
-   "developer": "Steve LaVietes",
-   "copyright": "©2020 Steve LaVietes",
-   "license": "CC0/Public Domain(Replace with your own license)",
-   "packages": [],
-   "scripts": [
-      "src/Block.pyxl",
-      "src/Bubble.pyxl",
-      "src/Board.pyxl",
-      "src/Clock.pyxl",
-      "src/Cursor.pyxl",
-      "src/DashBoard.pyxl",
-      "src/Garbage.pyxl",
-      "src/Globals.pyxl",
-      "src/Input.pyxl",
-      "src/LevelThermometer.pyxl",
-      "src/LinkedPool.pyxl",
-      "src/MatchesAndGravity.pyxl",
-      "src/Menu.pyxl",
-      "src/Music.pyxl",
-      "src/Sfx.pyxl",
-      "src/Text.pyxl"
-   ],
-   "modes": [
-      "modes/GameStart",
-      "modes/Play",
-      "modes/GameEnd",
-      "modes/MainMenu*"
-   ],
-   "docs": [
-      "todo.md"
-   ],
-   "assets": {
-      "blocks_sprite": "res/blocks.sprite.json",
-      "borders_sprite": "res/borders.sprite.json",
-      "cursor_sprite": "res/cursor.sprite.json",
-      "countInNumbers_sprite": "res/countInNumbers.sprite.json",
-      "dashboard_sprite": "res/dashboard.sprite.json",
-      "levelThermometer_sprite": "res/levelThermometer.sprite.json",
-      "menuBackdrop_sprite": "res/menuBackdrop.sprite.json",
-      "standardFont_sprite": "res/standardFont.sprite.json",
-      "wallpaper_sprite": "res/wallpaper.sprite.json",
-      "winLose_sprite": "res/winLose.sprite.json",
-      "logo_sprite": "res/logo.sprite.json",
-      "logoWaves_sprite": "res/logoWaves.sprite.json",
-      "pop1_sound": "snd/pop1.sound.json",
-      "pop2_sound": "snd/pop2.sound.json",
-      "pop3_sound": "snd/pop3.sound.json",
-      "pop4_sound": "snd/pop4.sound.json",
-      "pop5_sound": "snd/pop5.sound.json",
-      "pop6_sound": "snd/pop6.sound.json",
-      "pop7_sound": "snd/pop7.sound.json",
-      "pop8_sound": "snd/pop8.sound.json",
-      "pop9_sound": "snd/pop9.sound.json",
-      "pop10_sound": "snd/pop10.sound.json",
-      "pop11_sound": "snd/pop11.sound.json",
-      "pop12_sound": "snd/pop12.sound.json",
-      "pop13_sound": "snd/pop13.sound.json",
-      "pop14_sound": "snd/pop14.sound.json",
-      "pop15_sound": "snd/pop15.sound.json",
-      "cursor_sound": "snd/cursor.sound.json",
-      "drop_sound": "snd/drop.sound.json",
-      "swap_sound": "snd/swap.sound.json",
-      "match1_sound": "snd/match1.sound.json",
-      "match2_sound": "snd/match2.sound.json",
-      "match3_sound": "snd/match3.sound.json",
-      "match4_sound": "snd/match4.sound.json",
-      "match5_sound": "snd/match5.sound.json",
-      "end_sound": "snd/end.sound.json",
-      "plunkyIntro_sound": "snd/plunkyIntro.sound.json",
-      "plunkyMain_sound": "snd/plunkyMain.sound.json",
-      "plunkyPanic_sound": "snd/plunkyPanic.sound.json"
-   },
-   "version": 0,
-   "min_players": 1,
-   "max_players": 4,
-   "cooperative": true,
-   "competitive": true,
-   "achievements": false,
-   "highscores": false,
-   "description": "Swapping puzzle game",
-   "constants": {
-      "text_color": {
-         "type": "rgb",
-         "value": {
-            "r": {
-               "type": "number",
-               "value": 1
-            },
-            "g": {
-               "type": "number",
-               "value": 1
-            },
-            "b": {
-               "type": "number",
-               "value": 1
+    "title": "Doubles de Pon",
+    "developer": "Steve LaVietes",
+    "copyright": "©2020 Steve LaVietes",
+    "license": "CC0/Public Domain(Replace with your own license)",
+    "packages": [],
+    "scripts": [
+        "src/Block.pyxl",
+        "src/Bubble.pyxl",
+        "src/Board.pyxl",
+        "src/Clock.pyxl",
+        "src/Cursor.pyxl",
+        "src/DashBoard.pyxl",
+        "src/Garbage.pyxl",
+        "src/Globals.pyxl",
+        "src/Input.pyxl",
+        "src/LevelThermometer.pyxl",
+        "src/LinkedPool.pyxl",
+        "src/MatchesAndGravity.pyxl",
+        "src/Menu.pyxl",
+        "src/Music.pyxl",
+        "src/Sfx.pyxl",
+        "src/Text.pyxl"
+    ],
+    "modes": [
+        "modes/GameStart",
+        "modes/Play",
+        "modes/GameEnd",
+        "modes/MainMenu*"
+    ],
+    "docs": [
+        "todo.md"
+    ],
+    "assets": {
+        "blocks_sprite": "res/blocks.sprite.json",
+        "borders_sprite": "res/borders.sprite.json",
+        "cursor_sprite": "res/cursor.sprite.json",
+        "countInNumbers_sprite": "res/countInNumbers.sprite.json",
+        "dashboard_sprite": "res/dashboard.sprite.json",
+        "dashboardSolo_sprite": "res/dashboardSolo.sprite.json",
+        "levelThermometer_sprite": "res/levelThermometer.sprite.json",
+        "menuBackdrop_sprite": "res/menuBackdrop.sprite.json",
+        "standardFont_sprite": "res/standardFont.sprite.json",
+        "wallpaper_sprite": "res/wallpaper.sprite.json",
+        "winLose_sprite": "res/winLose.sprite.json",
+        "logo_sprite": "res/logo.sprite.json",
+        "logoWaves_sprite": "res/logoWaves.sprite.json",
+        "pop1_sound": "snd/pop1.sound.json",
+        "pop2_sound": "snd/pop2.sound.json",
+        "pop3_sound": "snd/pop3.sound.json",
+        "pop4_sound": "snd/pop4.sound.json",
+        "pop5_sound": "snd/pop5.sound.json",
+        "pop6_sound": "snd/pop6.sound.json",
+        "pop7_sound": "snd/pop7.sound.json",
+        "pop8_sound": "snd/pop8.sound.json",
+        "pop9_sound": "snd/pop9.sound.json",
+        "pop10_sound": "snd/pop10.sound.json",
+        "pop11_sound": "snd/pop11.sound.json",
+        "pop12_sound": "snd/pop12.sound.json",
+        "pop13_sound": "snd/pop13.sound.json",
+        "pop14_sound": "snd/pop14.sound.json",
+        "pop15_sound": "snd/pop15.sound.json",
+        "cursor_sound": "snd/cursor.sound.json",
+        "drop_sound": "snd/drop.sound.json",
+        "swap_sound": "snd/swap.sound.json",
+        "match1_sound": "snd/match1.sound.json",
+        "match2_sound": "snd/match2.sound.json",
+        "match3_sound": "snd/match3.sound.json",
+        "match4_sound": "snd/match4.sound.json",
+        "match5_sound": "snd/match5.sound.json",
+        "end_sound": "snd/end.sound.json",
+        "plunkyIntro_sound": "snd/plunkyIntro.sound.json",
+        "plunkyMain_sound": "snd/plunkyMain.sound.json",
+        "plunkyPanic_sound": "snd/plunkyPanic.sound.json"
+    },
+    "version": 0,
+    "min_players": 1,
+    "max_players": 4,
+    "cooperative": true,
+    "competitive": true,
+    "achievements": false,
+    "highscores": false,
+    "description": "Swapping puzzle game",
+    "constants": {
+        "text_color": {
+            "type": "rgb",
+            "value": {
+                "r": {
+                    "type": "number",
+                    "value": 1
+                },
+                "g": {
+                    "type": "number",
+                    "value": 1
+                },
+                "b": {
+                    "type": "number",
+                    "value": 1
+                }
             }
-         }
-      },
-      "DO_COUNT_IN": {
-         "type": "boolean",
-         "value": true,
-         "description": "where the game starts immediately"
-      },
-      "DEBUG_GARBAGE": {
-         "type": "boolean",
-         "value": true,
-         "description": "q key drops garbage for testing"
-      }
-   },
-   "screen_size": {
-      "x": 384,
-      "y": 224
-   }
+        },
+        "DO_COUNT_IN": {
+            "type": "boolean",
+            "value": true,
+            "description": "where the game starts immediately"
+        },
+        "DEBUG_GARBAGE": {
+            "type": "boolean",
+            "value": true,
+            "description": "q key drops garbage for testing"
+        }
+    },
+    "screen_size": {
+        "x": 384,
+        "y": 224
+    }
 }

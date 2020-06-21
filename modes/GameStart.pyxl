@@ -13,15 +13,17 @@ const seed = local_time().millisecond
 remove_all(Boards)
 
 push(Boards, Board(boardWidth, xy(16, 28), CursorsPerBoard, 0, seed))
-push(Boards, Board(boardWidth, xy(384 - 16 - boardWidth * 16, 28),
-        CursorsPerBoard, 1, seed))
+
+if g_gameMode != GameMode.SOLO:
+    push(Boards, Board(boardWidth, xy(384 - 16 - boardWidth * 16, 28),
+            CursorsPerBoard, 1, seed))
+
+    Boards[0].otherBoard = Boards[1]
+    Boards[1].otherBoard = Boards[0]
+
 
 for board in Boards:
     BoardFill(board, 5)
-
-Boards[0].otherBoard = Boards[1]
-Boards[1].otherBoard = Boards[0]
-
 
 // testing
 // Boards[1].cursors[1].joyIdx = 1

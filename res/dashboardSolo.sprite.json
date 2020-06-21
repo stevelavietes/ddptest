@@ -1,0 +1,9 @@
+{
+    "url": "dashboardSolo.png",
+    "sprite_size": {
+        "x": 64,
+        "y": 84
+    },
+    "gutter": 0,
+    "default_frames": 1
+}

@@ -36,12 +36,14 @@ def BubbleStep(bubble, pool):
     ++bubble.count
 
     if bubble.count == BubbleConstants.BUBBLETIME:
-        if not bubble.garbageTarget:
+        if bubble.garbageTarget == nil:
             BubbleDeliverGarbage(bubble)
             LinkedPoolRemove(pool, bubble)
             return
         else:
-            if bubble.garbageTarget.boardIdx:
+            if g_gameMode == GameMode.SOLO:
+                bubble.dir = BubbleDir.RIGHT
+            else if bubble.garbageTarget.boardIdx:
                 bubble.dir = BubbleDir.RIGHT
             else:
                 bubble.dir = BubbleDir.LEFT
@@ -56,13 +58,23 @@ def BubbleStep(bubble, pool):
 
             if not bubble.delta:
                 // calculate delta
-                const dst = xy(
-                    bubble.garbageTarget.pos.x,
-                    bubble.garbageTarget.pos.y - 18
-                )
+                
+                let dst = nil
 
-                if bubble.dir == BubbleDir.LEFT:
-                    dst.x += bubble.garbageTarget.sizeX * 16
+                if g_gameMode == GameMode.SOLO:
+                    const board = Boards[bubble.garbageTarget]
+                    dst = clone(board.pos)
+                    dst.x += board.sizeX * 16
+                    dst.x += 32
+                    dst.y += 24
+                else:
+                    const dst = xy(
+                        bubble.garbageTarget.pos.x,
+                        bubble.garbageTarget.pos.y - 18
+                    )
+
+                    if bubble.dir == BubbleDir.LEFT:
+                        dst.x += bubble.garbageTarget.sizeX * 16
 
 
                 bubble.delta = (dst - bubble.pos) / xy(8, 8)
@@ -107,14 +119,18 @@ def BubbleDraw(bubble):
 //----------------------------------------------------------------------------
 
 def BubbleDeliverGarbage(bubble):
-    if not bubble.garbageTarget:
+    if bubble.garbageTarget == nil:
         return
 
     if bubble.metal:
         for i < bubble.garbageLevel:
-            BoardAppendGarbage(bubble.garbageTarget,
-                    bubble.garbageTarget.sizeX, 1,
-                            if not i then 60 else 0, true)
+            if g_gameMode == GameMode.SOLO:
+                const board = Boards[bubble.garbageTarget]
+                board.score += board.sizeX * 3
+            else:
+                BoardAppendGarbage(bubble.garbageTarget,
+                        bubble.garbageTarget.sizeX, 1,
+                                if not i then 60 else 0, true)
 
         bubble.garbageTarget = nil
         return
@@ -124,6 +140,13 @@ def BubbleDeliverGarbage(bubble):
         --garbageTotal
 
     garbageTotal *= bubble.garbageMult
+
+
+    if g_gameMode == GameMode.SOLO:
+        Boards[bubble.garbageTarget].score += garbageTotal
+
+        bubble.garbageTarget = nil
+        return
 
     const width = bubble.garbageTarget.sizeX
 
