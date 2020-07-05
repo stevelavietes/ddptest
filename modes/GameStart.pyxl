@@ -31,6 +31,8 @@ for board in Boards:
 
 ClockReset(g_clock)
 
+// XXX TODO, make this follow winner
+CurrentSongIdx = SelectedCharacters[0]
 
 frame
 ────────────────────────────────────────────────────────────────────────

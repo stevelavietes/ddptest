@@ -26,20 +26,24 @@
         "modes/GameStart",
         "modes/Play",
         "modes/GameEnd",
-        "modes/MainMenu*"
+        "modes/MainMenu*",
+        "modes/SelectMenu"
     ],
     "docs": [
         "todo.md"
     ],
     "assets": {
         "blocks_sprite": "res/blocks.sprite.json",
+        "blocksPalette_sprite": "res/blocksPalette.sprite.json",
         "borders_sprite": "res/borders.sprite.json",
+        "chromeBorders_sprite": "res/chromeBorders.sprite.json",
         "cursor_sprite": "res/cursor.sprite.json",
         "countInNumbers_sprite": "res/countInNumbers.sprite.json",
         "dashboard_sprite": "res/dashboard.sprite.json",
         "dashboardSolo_sprite": "res/dashboardSolo.sprite.json",
         "levelThermometer_sprite": "res/levelThermometer.sprite.json",
         "menuBackdrop_sprite": "res/menuBackdrop.sprite.json",
+        "selectCursors_sprite": "res/selectCursors.sprite.json",
         "standardFont_sprite": "res/standardFont.sprite.json",
         "wallpaper_sprite": "res/wallpaper.sprite.json",
         "winLose_sprite": "res/winLose.sprite.json",
@@ -71,7 +75,23 @@
         "end_sound": "snd/end.sound.json",
         "plunkyIntro_sound": "snd/plunkyIntro.sound.json",
         "plunkyMain_sound": "snd/plunkyMain.sound.json",
-        "plunkyPanic_sound": "snd/plunkyPanic.sound.json"
+        "plunkyPanic_sound": "snd/plunkyPanic.sound.json",
+        "bubbly_sound": "snd/bubbly.sound.json",
+        "bubblyPanic_sound": "snd/bubblyPanic.sound.json",
+        "creamy_sound": "snd/creamy.sound.json",
+        "creamyPanic_sound": "snd/creamyPanic.sound.json",
+        "minty_sound": "snd/minty.sound.json",
+        "mintyPanic_sound": "snd/mintyPanic.sound.json",
+        "salty_sound": "snd/salty.sound.json",
+        "saltyPanic_sound": "snd/saltyPanic.sound.json",
+        "savory_sound": "snd/savory.sound.json",
+        "savoryPanic_sound": "snd/savoryPanic.sound.json",
+        "tangy_sound": "snd/tangy.sound.json",
+        "tangyPanic_sound": "snd/tangyPanic.sound.json",
+        "tart_sound": "snd/tart.sound.json",
+        "tartPanic_sound": "snd/tartPanic.sound.json",
+
+        "name_font": "quad://fonts/deja-6.font.json"
     },
     "version": 0,
     "min_players": 1,

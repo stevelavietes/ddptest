@@ -18,6 +18,7 @@ def BubbleReset(bubble):
 
     bubble.type = BubbleType.COMBO
     bubble.pos = xy(0, 0)
+    bubble.prevPos = xy(0, 0)
     bubble.value = 0
     bubble.count = 0
     bubble.dir = BubbleDir.LEFT
@@ -33,6 +34,8 @@ def BubbleReset(bubble):
 //----------------------------------------------------------------------------
 
 def BubbleStep(bubble, pool):
+    extend(bubble.prevPos, bubble.pos)
+
     ++bubble.count
 
     if bubble.count == BubbleConstants.BUBBLETIME:
@@ -50,8 +53,10 @@ def BubbleStep(bubble, pool):
 
     if bubble.count >= BubbleConstants.BUBBLETIME:
         if bubble.count >= BubbleConstants.BUBBLEGARBAGETIME:
-            BubbleDeliverGarbage(bubble)
-            LinkedPoolRemove(pool, bubble)
+            
+            if bubble.count == BubbleConstants.BUBBLEGARBAGETIME + 12:
+                BubbleDeliverGarbage(bubble)
+                LinkedPoolRemove(pool, bubble)
             return
         else if bubble.count >= BubbleConstants.BUBBLEWINDUPTIME:
             // TODO, consider bubble.dir
@@ -65,19 +70,22 @@ def BubbleStep(bubble, pool):
                     const board = Boards[bubble.garbageTarget]
                     dst = clone(board.pos)
                     dst.x += board.sizeX * 16
-                    dst.x += 32
+                    dst.x += 36
                     dst.y += 24
                 else:
-                    const dst = xy(
+                    dst = xy(
                         bubble.garbageTarget.pos.x,
                         bubble.garbageTarget.pos.y - 18
                     )
 
                     if bubble.dir == BubbleDir.LEFT:
-                        dst.x += bubble.garbageTarget.sizeX * 16
+                        dst.x += bubble.garbageTarget.sizeX * 16 - 16
 
+                const d = (
+                    BubbleConstants.BUBBLEGARBAGETIME
+                            - BubbleConstants.BUBBLEWINDUPTIME)
 
-                bubble.delta = (dst - bubble.pos) / xy(8, 8)
+                bubble.delta = (dst - bubble.pos) / xy(d, d)
 
             // apply delta
             bubble.pos.x += bubble.delta.x
@@ -94,7 +102,51 @@ def BubbleStep(bubble, pool):
 
 //----------------------------------------------------------------------------
 
+
+const kBubbleOrbitS = sin(π / 4.0)
+const kBubbleOrbitC = cos(π / 4.0)
+
 def BubbleDraw(bubble):
+
+    // XXX testing orbiting elements around garbage send
+    if bubble.count and bubble.garbageTarget != nil:
+        const trailMult = 5
+        const trailSteps = 10
+        for i < trailSteps:
+            
+            const nt =  (1.0 - (i / (trailSteps - 1)))
+            const count = (bubble.count - nt * trailMult);
+
+            const t = count / 4
+            const s = sin(t)
+            const c = cos(t)
+
+            const l = smoothstep(
+                BubbleConstants.BUBBLETIME - 10,
+                BubbleConstants.BUBBLETIME + 10,
+                count) * 24
+
+            const moonPos = xy(
+                (- (-l * s)) / 2,
+                -l * c,
+            )
+
+            const rotMoonPos = xy(
+                moonPos.x * kBubbleOrbitC - moonPos.y * kBubbleOrbitS,
+                moonPos.y * kBubbleOrbitS + moonPos.x * kBubbleOrbitS
+            )
+
+            const bPos = (bubble.pos - (bubble.pos - bubble.prevPos)
+                    * xy(nt * trailMult, nt * trailMult))
+
+            const r = smoothstep(0, trailSteps - 1, i) * 2 + 2
+
+            draw_disk(bPos + rotMoonPos + xy(8,8),
+                    r, rgba(1, 1, 1, nt), nil, ZLayers.OVER)
+
+            draw_disk(bPos + (rotMoonPos * xy(-1, 1)) + xy(8,8),
+                    r, rgba(1, 1, 1, nt), nil, ZLayers.OVER)
+
     if bubble.count < BubbleConstants.BUBBLETIME:
         let sprite = nil
 
@@ -191,7 +243,7 @@ def BubbleDeliverGarbage(bubble):
 const BubbleConstants = {
     BUBBLETIME : 40,
     BUBBLEWINDUPTIME : 69,
-    BUBBLEGARBAGETIME : 77,
+    BUBBLEGARBAGETIME : 85, // was 77
 
     DRAWZ : 2,
 

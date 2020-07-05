@@ -15,8 +15,8 @@ def BoardAppendGarbage(board, width, height, waitDur, metal=false):
     return garbage
 
 def BoardPrependPendingGarbage(board, width, height, forceX = -1):
-    const garbage = push(
-            board.pendingGarbage, Garbage(width, height, false))
+    const garbage = insert(
+            board.pendingGarbage, 0, Garbage(width, height, false))
     garbage.forceX = forceX
 
     return garbage

@@ -1,0 +1,290 @@
+SelectMenu
+════════════════════════════════════════════════════════════════════════
+
+def DrawPortait(pos, name, pal):
+    DrawChromeBorder(pos, xy(5, 6), gray(0.5))
+    
+    draw_rect(pos + xy(20, 22), xy(42, 38), pal.MID, gray(0))
+    draw_rect(pos + xy(20, 22), xy(40, 36), nil, pal.DARK)
+
+
+    draw_text({
+        font: name_font,
+        text: name,
+        pos: pos + xy(20, 46),
+        color: gray(1),
+        x_align: "center",
+        y_align: "center",
+        shadow: gray(0.25),
+    })
+
+
+const levelY = 180
+const levelHeight = SCREEN_SIZE.y - levelY
+
+
+
+def DrawLevelSelect(pos, index, dim, pal):
+    draw_rect(pos + dim / 2, dim, pal.MID, pal.DARK)
+    draw_rect(pos + dim / 2 + xy(-2, 4), xy(43, 4), gray(0))
+
+    LevelThermometerDraw(LevelThermometer(pos + dim / 2 - xy(25, 10), index, 0))
+
+
+
+
+
+const TOP_ROW = [
+    {
+        name : "LINCOLN",
+        pal : Palette.RED,
+    },
+    {
+        name : "OMAHA",
+        pal : Palette.GREEN,
+    },
+    {
+        name : "WICHITA",
+        pal : Palette.AQUA,
+    },
+    {
+        name : "AKRON",
+        pal : Palette.BLACK,
+    },
+]
+
+const BOT_ROW = [
+    {
+        name : "DAYTON",
+        pal : Palette.WHITE,
+    },
+    {
+        name : "MUNCIE",
+        pal : Palette.MAGENTA,
+    },
+    {
+        name : "PEORIA",
+        pal : Palette.YELLOW,
+    },
+    {
+        name : "GARY",
+        pal : Palette.BLUE,
+    },
+]
+
+
+
+
+const LEFT = 40
+const SPACING = 86
+const TOP = 30
+const BOT = 110
+
+const menuDepths = []
+
+enter
+────────────────────────────────────────────────────────────────────────
+
+remove_all(menuDepths)
+for i < size(GameConfigs[g_gameMode].cursors):
+    push(menuDepths, 0)
+
+frame
+────────────────────────────────────────────────────────────────────────
+
+GlobalsStep()
+DrawWallpaper()
+
+for entry at i in TOP_ROW:
+    DrawPortait(xy(LEFT + i * SPACING, TOP), entry.name, entry.pal)
+
+for entry at i in BOT_ROW:
+    DrawPortait(xy(LEFT + i * SPACING, BOT), entry.name, entry.pal)
+
+const config = GameConfigs[g_gameMode]
+
+
+
+for joyIdx in config.cursors:
+
+
+    const menuDepth = menuDepths[joyIdx]
+
+    const animOffset = (
+            if menuDepth == 0 and (mode_frames + joyIdx * 8) mod 32 > 15 then 1
+            else 0)
+
+    if menuDepth == 0:
+        if (JoyNewPress(joyIdx, JoyStateKeys.UP)
+                or JoyNewPress(joyIdx, JoyStateKeys.DOWN)):
+            if SelectedCharacters[joyIdx] > 3:
+                SelectedCharacters[joyIdx] -= 4
+            else:
+                SelectedCharacters[joyIdx] += 4
+            play_sound(cursor_sound)
+        else if JoyNewPress(joyIdx, JoyStateKeys.LEFT):
+            if SelectedCharacters[joyIdx] == 0:
+                SelectedCharacters[joyIdx] = 7
+            else:
+                SelectedCharacters[joyIdx] -= 1
+            play_sound(cursor_sound)
+        else if JoyNewPress(joyIdx, JoyStateKeys.RIGHT):
+            SelectedCharacters[joyIdx] = (SelectedCharacters[joyIdx] + 1) mod 8
+            play_sound(cursor_sound)
+        else if JoyNewPress(joyIdx, JoyStateKeys.YES):
+            ++menuDepths[joyIdx]
+            play_sound(swap_sound)
+
+        if JoyNewPress(joyIdx, JoyStateKeys.NO):
+            let goBack = true
+            for menuDepth in menuDepths:
+                if menuDepth:
+                    goBack = false
+                    break
+            if goBack:
+                set_mode(MainMenu)
+                play_sound(swap_sound)
+
+    else if menuDepth == 1:
+        let levelIdx = joyIdx
+        if size(config.cursors) > 2:
+            levelIdx = if joyIdx < 2 then 0 else 1
+
+        if JoyNewPress(joyIdx, JoyStateKeys.NO):
+            --menuDepths[joyIdx]
+            play_sound(swap_sound)
+
+        if JoyNewPress(joyIdx, JoyStateKeys.YES):
+            ++menuDepths[joyIdx]
+            play_sound(swap_sound)
+
+        if JoyNewPress(joyIdx, JoyStateKeys.LEFT):
+            Level[levelIdx] = max(0, Level[levelIdx] - 1)
+            play_sound(cursor_sound)
+
+        if JoyNewPress(joyIdx, JoyStateKeys.RIGHT):
+            Level[levelIdx] = min(9, Level[levelIdx] + 1)
+            play_sound(cursor_sound)
+
+
+
+
+    else if menuDepth == 2:
+        if JoyNewPress(joyIdx, JoyStateKeys.NO):
+            --menuDepths[joyIdx]
+            play_sound(swap_sound)
+
+
+    const charIdx = SelectedCharacters[joyIdx]
+
+    const pos = xy(
+        LEFT + SPACING * (charIdx mod 4),
+        if charIdx > 3 then BOT else TOP
+    )
+
+    const colorOffset = if size(config.cursors) < 2 then 0 else (joyIdx mod 2)
+
+    if menuDepth == 0:
+        draw_sprite({
+            sprite: selectCursors_sprite[0 + colorOffset][0],
+            pos : pos - xy(4, 0) + xy(-animOffset, -animOffset),
+            z : animOffset + 1,
+        })
+
+        draw_sprite({
+            sprite: selectCursors_sprite[0 + colorOffset][0],
+            pos: pos + xy(44, 0) + xy(animOffset, -animOffset),
+            scale: xy(-1, 1),
+            z : animOffset + 1,
+        })
+
+        draw_sprite({
+            sprite: selectCursors_sprite[0 + colorOffset][0],
+            pos: pos + xy(-4, 56) + xy(-animOffset, -animOffset),
+            scale: xy(1, -1),
+            z : animOffset + 1,
+        })
+
+        draw_sprite({
+            sprite: selectCursors_sprite[0 + colorOffset][0],
+            pos: pos + xy(44, 56) + xy(animOffset, -animOffset),
+            scale: xy(-1, -1),
+            z : animOffset + 1,
+        })
+
+    draw_sprite(selectCursors_sprite[2 + joyIdx * 2 + colorOffset][0],
+            pos + xy(5 + joyIdx * 10, -4))
+
+    if menuDepth > 0:
+        const animOffset = (if (menuDepth == 1 and mode_frames + joyIdx * 8) mod 32 > 15 then 1
+                else 0)
+
+        const pos = xy(0 + 8, levelY + 12 + animOffset)
+        
+        if size(menuDepths) == 2:
+            if joyIdx:
+                pos.x += SCREEN_SIZE.x / 2
+        else if size(menuDepths) == 2:
+            if joyIdx > 0:
+                pos.x += SCREEN_SIZE.x / 2
+
+        else if size(menuDepths) == 4:
+            if joyIdx > 1:
+                pos.x += SCREEN_SIZE.x / 2
+
+            pos.x += (joyIdx mod 2) * 10
+
+        draw_sprite({
+            sprite: selectCursors_sprite[2 + joyIdx * 2 + colorOffset][0],
+            pos: pos,
+            z : 1,
+        })
+
+
+
+
+if size(menuDepths) == 1:
+    if menuDepths[0]:
+        DrawLevelSelect(xy(0, levelY), 0, xy(SCREEN_SIZE.x, levelHeight) , Palette.RED)
+else:
+    let drawLeft = false
+    let drawRight = false
+
+    if size(menuDepths) == 2:
+        if menuDepths[0]:
+            drawLeft = true
+        if menuDepths[1]:
+            drawRight = true
+
+    if size(menuDepths) == 4:
+        if menuDepths[0] or menuDepths[1]:
+            drawLeft = true
+        if menuDepths[2] or menuDepths[3]:
+            drawRight = true
+
+    if drawLeft:
+        DrawLevelSelect(xy(0, levelY), 0, xy(SCREEN_SIZE.x / 2, levelHeight) , Palette.RED)
+
+    if drawRight:
+        DrawLevelSelect(xy(SCREEN_SIZE.x / 2, levelY), 1,
+                xy(SCREEN_SIZE.x / 2, levelHeight) , Palette.BLUE)
+
+
+
+
+
+
+let ready = true
+for menuDepth in menuDepths:
+    if menuDepth < 2:
+        ready = false
+        break
+
+if ready:
+    set_mode(GameStart)
+
+
+
+
+
+

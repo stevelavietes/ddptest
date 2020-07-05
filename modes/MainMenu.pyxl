@@ -71,16 +71,13 @@ frame
 ────────────────────────────────────────────────────────────────────────
 GlobalsStep()
 
-
-for y < 5:
-    for x < 5:
-        draw_sprite(wallpaper_sprite[0][0], xy(
-            x * 128 - (mode_frames mod 128),
-            y * 64 - (mode_frames mod 64)))
-
+DrawWallpaper()
 
 draw_sprite(logo_sprite[0][0], logoPos)
 draw_sprite(logoWaves_sprite[floor((mode_frames mod 48) / 2)][0], logoPos)
+
+
+
 
 const config = configs[MenuGetIndex(menu)]
 if menuDepths[0] == 0:
@@ -95,6 +92,10 @@ if menuDepths[0] == 0:
         menuDepths[0] = 1
         menuDepths[1] = 1
 
+        g_gameMode = MenuGetIndex(menu)
+        // XXX
+        set_mode(SelectMenu)
+
         remove_all(levelTherms)
 
         push(levelTherms, LevelThermometer(
@@ -105,7 +106,7 @@ if menuDepths[0] == 0:
                     xy(SCREEN_SIZE.x - thermWidth - thermInset, thermY), 1,
                             config.joyIdxs[1]))
 
-        g_gameMode = MenuGetIndex(menu)
+       
 
 else:
     

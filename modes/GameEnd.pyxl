@@ -41,9 +41,17 @@ if mode_frames > 180:
     if MenuStep(testMenu, 0):
         const result = MenuGetIndex(testMenu)
         if result == 0:
-            set_mode(GameStart)
+            set_mode(SelectMenu)
         else:
             set_mode(MainMenu)
-
-
-
+    else:
+        // allow for level adjustments without returning to main menu
+        for board in Boards:
+            const idx = board.boardIdx
+            for cursor in board.cursors:
+                if JoyNewPress(cursor.joyIdx, JoyStateKeys.LEFT):
+                    Level[idx] = max(0, Level[idx] - 1)
+                    play_sound(cursor_sound)
+                if JoyNewPress(cursor.joyIdx, JoyStateKeys.RIGHT):
+                    Level[idx] = min(9, Level[idx] + 1)
+                    play_sound(cursor_sound)

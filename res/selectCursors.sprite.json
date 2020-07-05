@@ -1,0 +1,11 @@
+{
+    "url": "selectCursors.png",
+    "sprite_size": {
+        "x": 16,
+        "y": 16
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+ 
+    "default_frames": 1
+}

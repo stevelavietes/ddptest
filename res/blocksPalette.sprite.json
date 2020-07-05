@@ -1,0 +1,10 @@
+{
+    "url": "blocksPalette.png",
+    "sprite_size": {
+        "x": 24,
+        "y": 1
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+    "default_frames": 1
+}

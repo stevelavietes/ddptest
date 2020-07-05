@@ -68,7 +68,7 @@ def Board(width_, pos_, numCursors_, boardIdx_, seed_):
         haveAutoRaisedOnce : false,
         autoRaiseDecrementCounter : 0,
         autoRaiseHold : 0,
-        manualRaise : false,
+        manualRaise : 0,
 
         blockRandom : make_random(seed_),
 
@@ -314,83 +314,57 @@ def BoardDraw(board):
         const width = board.sizeX * 16
         const height = board.sizeY * 16
 
-
-        const startPos = board.pos + xy(0, -1)
-        draw_rect(xy(startPos.x + width / 2, startPos.y + height / 2),
+        const startPos = board.pos + xy(0, -5)
+        draw_rect(xy(startPos.x + width / 2, startPos.y + height / 2 + 1),
                 xy(width + 4, height), gray(0.1) )
 
+        draw_sprite(chromeBorders_sprite[0][0], startPos + xy(-8, 0),
+                0, nil, 1.0, ZLayers.MASK)
+
+        draw_sprite(chromeBorders_sprite[0][1], startPos + xy(width, 0),
+                0, nil, 1.0, ZLayers.MASK)
+
+        draw_sprite(chromeBorders_sprite[0][2], startPos + xy(-8, height - 16),
+                0, nil, 1.0, ZLayers.MASK)
+
+        draw_sprite(chromeBorders_sprite[0][3], startPos + xy(width, height - 16),
+                0, nil, 1.0, ZLayers.MASK)
+
         for x < board.sizeX * 2:
-            // top row twice
-            draw_sprite(borders_sprite[1][0], startPos + xy(x * 8, -16),
-                    0, xy(1, -1), 1.0, ZLayers.MASK)
-            
-            draw_sprite(borders_sprite[1][0], startPos + xy(x * 8, -8),
-                    0, xy(1, -1), 1.0, ZLayers.MASK)
-            
-            draw_sprite(borders_sprite[2][0], startPos + xy(x * 8, 0),
-                    0, xy(1, -1), 1.0, ZLayers.MASK)
-            draw_sprite(borders_sprite[6][0], startPos + xy(x * 8, height - 16),
+            draw_sprite(chromeBorders_sprite[0][8], startPos + xy(x * 8, 0),
+                    0, nil, 1.0, ZLayers.MASK)
+            draw_sprite(chromeBorders_sprite[0][9], startPos + xy(x * 8, height - 16),
                     0, nil, 1.0, ZLayers.MASK)
 
-        for y < board.sizeY * 2:
-            draw_sprite(borders_sprite[4][0], startPos + xy(0, y * 8),
-                    0, xy(-1, 1), 1.0, ZLayers.MASK)
-            draw_sprite(borders_sprite[4][0], startPos + xy(width, y * 8),
+        for y < board.sizeY * 2 - 3:
+            draw_sprite(chromeBorders_sprite[0][10], startPos + xy(-8, y * 8 + 8),
+                    0, nil, 1.0, ZLayers.MASK)
+            draw_sprite(chromeBorders_sprite[0][11], startPos + xy(width, y * 8 + 8),
                     0, nil, 1.0, ZLayers.MASK)
 
-        draw_sprite(borders_sprite[5][0], startPos,
-                    0, xy(-1, -1), 1.0, ZLayers.MASK)
-        draw_sprite(borders_sprite[5][0], startPos + xy(width, 0),
-                    0, xy(1, -1), 1.0, ZLayers.MASK)
-
-        draw_sprite(borders_sprite[5][0], startPos + xy(0, height - 16),
-                    0, xy(-1, 1), 1.0, ZLayers.MASK)
-        draw_sprite(borders_sprite[5][0], startPos + xy(width, height - 16),
-                    0, xy(1, 1), 1.0, ZLayers.MASK)
-
-
-
-
-
-
+        // TODO, align to borders
         if board.autoRaiseHold:
-            const bottom = board.pos.y + (board.sizeY - 1) * 16 - 2
-            const left = board.pos.x - 2
-            const top = max(board.pos.y, bottom - board.autoRaiseHold / 2)
+            const bottom = board.pos.y + (board.sizeY - 1) * 16 - 4
+            const left = board.pos.x - 5
+            const top = max(board.pos.y + 3, bottom - board.autoRaiseHold / 2)
+
             draw_line(xy(left, bottom), xy(left, top),
                     rgb(0, 1, 0), ZLayers.MASK, 1)
 
+
+
         if board.toppedOutFrameCount:
-            const right = board.pos.x + (board.sizeX * 16) + 1
-            const height = (board.sizeY - 1) * 16 - 2
+            const right = board.pos.x + (board.sizeX * 16) + 4
+            const height = (board.sizeY - 1) * 16 - 4
             const bottom = board.pos.y + height
             const normTop = (board.toppedOutFrameCount
                     / LevelConstants.TOPPEDOUTBOARDFRAMELIMIT)
-            const top = max(board.pos.y, bottom - normTop * height)
+            const top = max(board.pos.y + 3, bottom - normTop * height)
             draw_line(xy(right, bottom), xy(right, top),
                     rgb(1, 0, 0), ZLayers.MASK, 1)
 
-        /*
-        // XXX temporary wins display
-        if board.otherBoard:
-            const winsStr = format_number(min(99, Wins[board.boardIdx]), "00")
-            if board.boardIdx:
-                DrawStandardText(xy(board.pos.x + width, 1), winsStr, ZLayers.MASK)
-            else:
-                DrawStandardText(xy(board.pos.x - 16, 1), winsStr, ZLayers.MASK)
 
-        // XXX temporary level display
-        if board.boardIdx:
-            LevelThermometerDraw(LevelThermometer(
-                    xy(board.pos.x + width - 48, -9), board.boardIdx, 0), ZLayers.MASK)
-        else:
-            LevelThermometerDraw(LevelThermometer(
-                    xy(board.pos.x, -9), board.boardIdx, 0), ZLayers.MASK)
-        */
-
-
-
-
+    set_clip(xy(0, board.pos.y - 1), xy(SCREEN_SIZE.x, (board.sizeY - 1) * 16))
 
 
     const pos = BoardGetScreenPos(board)
@@ -414,6 +388,7 @@ def BoardDraw(board):
         for cursor in board.cursors:
             CursorDraw(cursor, xy(pos.x, orgY), board)
 
+    reset_clip()
 
     if get_mode() != Play:
         return
@@ -556,7 +531,7 @@ def BoardRaise(board):
     if board.raiseOffset:
         for block in topRow:
             if block.type:
-                board.manualRaise = false
+                board.manualRaise = 0
                 return
 
     board.raiseOffset = (board.raiseOffset + 1) mod 16

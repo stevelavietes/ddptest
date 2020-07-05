@@ -12,7 +12,23 @@ const GameMode = {
     SOLO : 2,
 }
 
+const GameConfigs = {}
+
+GameConfigs[GameMode.DOUBLES] = {
+    cursors: [0, 1, 2, 3],
+}
+
+GameConfigs[GameMode.SINGLES] = {
+    cursors: [0, 1],
+}
+
+GameConfigs[GameMode.SOLO] = {
+    cursors: [0],
+}
+
 let g_gameMode = GameMode.DOUBLES
+
+const SelectedCharacters = [0, 3, 4, 7]
 
 //----
 
@@ -36,3 +52,34 @@ let Boards = []
 
 const g_clock = Clock()
 const g_clockPos = xy(SCREEN_SIZE.x / 2 - 18, 2)
+
+const Palette = {
+    WHITE : {
+        DARK: gray(0.7),
+        MID: gray(0.8),
+        LIGHT: gray(0.9),
+    },
+    BLACK : {
+        DARK: gray(0.2),
+        MID: gray(0.3),
+        LIGHT: gray(0.4),
+    },
+}
+
+for name at i in [
+        "RED",
+        "GREEN",
+        "AQUA",
+        "MAGENTA",
+        "YELLOW",
+        "BLUE",
+        ]:
+    Palette[name] = {
+        DARK : get_sprite_pixel_color(
+                blocksPalette_sprite[0][0], xy(i * 3, 0)),
+        MID : get_sprite_pixel_color(
+                blocksPalette_sprite[0][0], xy(i * 3 + 1, 0)),
+        LIGHT : get_sprite_pixel_color(
+                blocksPalette_sprite[0][0], xy(i * 3 + 2, 0)),
+    }
+

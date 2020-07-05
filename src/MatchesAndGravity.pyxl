@@ -432,7 +432,7 @@ def BoardProcessGravityAndMatches(board):
         let bubble = nil
         
         if state.newMatchMetalCount >= 3:
-            debug_print("METAL COUNT", state.newMatchMetalCount)
+            // debug_print("METAL COUNT", state.newMatchMetalCount)
             bubble = BubbleReset(LinkedPoolAppend(board.bubblePool))
             bubble.type = BubbleType.COMBO
             bubble.pos.x = board.pos.x + state.newMatchMinX * 16

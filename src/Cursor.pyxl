@@ -3,7 +3,7 @@ const CursorState = {
     SWAPPING : 1,
 }
 const CursorConstants = {
-    REPEATPAUSE : 8,
+    REPEATPAUSE : 16,
     SWAPFRAMECOUNT : 3,
 }
 

@@ -1,0 +1,11 @@
+{
+    "url": "chromeBorders.png",
+    "sprite_size": {
+        "x": 8,
+        "y": 8
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+    "default_frames": 1,
+    "pivot" : {"x" : 0, "y" : 0}
+}
