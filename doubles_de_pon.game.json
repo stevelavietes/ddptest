@@ -49,6 +49,7 @@
         "winLose_sprite": "res/winLose.sprite.json",
         "logo_sprite": "res/logo.sprite.json",
         "logoWaves_sprite": "res/logoWaves.sprite.json",
+        "pulseBg_sprite": "res/pulseBg.sprite.json",
         "pop1_sound": "snd/pop1.sound.json",
         "pop2_sound": "snd/pop2.sound.json",
         "pop3_sound": "snd/pop3.sound.json",

@@ -94,6 +94,9 @@ def Board(width_, pos_, numCursors_, boardIdx_, seed_):
 
         level : Level[boardIdx_],
 
+        bgFrame : 0,
+        bgCounter : 0,
+
         score : 0,
     }
 
@@ -180,6 +183,13 @@ def BoardStep(board):
                 blockFrame = 0
             else:
                 blockFrame += 1
+
+    with bgFrame, bgCounter, autoRaiseSpeed in board:
+        ++bgCounter
+        if bgCounter > (if board.anyColumnsTopped then 1 else autoRaiseSpeed / 2):
+            bgCounter = 0
+            bgFrame = (bgFrame + 1) mod 17
+
 
     if board.shakeData and board.shakeCount:
         --board.shakeCount
@@ -308,15 +318,71 @@ def BoardStep(board):
 //----------------------------------------------------------------------------
 
 def BoardDraw(board):
-    
+    // draw backdrop
+    local:
+        const palIdx = SelectedCharacters[board.cursors[0].joyIdx]
+
+        const bgOpacity = if palIdx == 7 then 1 else 7.0/15.0
+        const pal = PaletteList[palIdx]
+        
+        const rectArgs = {
+            pos: SCREEN_SIZE / xy(4, 2) + xy(SCREEN_SIZE.x / 2 * board.boardIdx, 0),
+            size: SCREEN_SIZE / xy(2, 1),
+            color: extended(pal.MID, {a: bgOpacity}),
+            z: -1,
+        }
+
+        draw_rect(rectArgs)
+
+        const startX = board.boardIdx * (SCREEN_SIZE.x / 2)
+        const startY =  -board.raiseOffset - board.shakePos
+        const workPos = xy(startX, startY)
+
+        //let frame = floor(mode_frames / 16) mod 17
+        let frame = board.bgFrame
+        if frame > 8:
+            frame = 8 - (frame - 8)
+
+        const args = {
+            sprite: pulseBg_sprite[frame][0],
+            pos: workPos,
+            z: -1,
+            override_color: pal.LIGHT,
+            opacity : bgOpacity,
+        }
+        for y < 15:
+            workPos.x = startX
+            for x < 12:
+                draw_sprite(args)
+                workPos.x += 16
+            workPos.y += 16
+
+        set_clip(xy(SCREEN_SIZE.x / 2 - 1, 0), xy(2, SCREEN_SIZE.y))
+        workPos.x = if board.boardIdx then startX else startX + 11 * 16
+        workPos.y = startY
+
+        args.opacity = 1.0
+        if palIdx == 7:
+            args.override_color = pal.MID
+        rectArgs.color = if palIdx == 7 then pal.DARK else pal.MID
+        draw_rect(rectArgs)
+        
+        for y < 15:
+            draw_sprite(args)
+            workPos.y += 16
+
+        reset_clip()
+
+
+
     // draw border
     local:
         const width = board.sizeX * 16
         const height = board.sizeY * 16
 
         const startPos = board.pos + xy(0, -5)
-        draw_rect(xy(startPos.x + width / 2, startPos.y + height / 2 + 1),
-                xy(width + 4, height), gray(0.1) )
+        draw_rect(xy(startPos.x + width / 2, startPos.y + height / 2 - 4),
+                xy(width + 4, height - 16), gray(0.1) )
 
         draw_sprite(chromeBorders_sprite[0][0], startPos + xy(-8, 0),
                 0, nil, 1.0, ZLayers.MASK)
@@ -606,6 +672,7 @@ def BoardLose(board):
     if board.otherBoard:
         board.otherBoard.state = GameState.WON
 
+        g_lastWinSide = (board.boardIdx + 1) mod 2
         ++Wins[board.otherBoard.boardIdx]
 
     board.shakeData = ShakeFramesLarge

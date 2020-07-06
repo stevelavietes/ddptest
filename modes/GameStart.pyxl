@@ -31,8 +31,24 @@ for board in Boards:
 
 ClockReset(g_clock)
 
-// XXX TODO, make this follow winner
-CurrentSongIdx = SelectedCharacters[0]
+
+let musicChoices = []
+if g_lastWinSide == nil:
+    for i < size(GameConfigs[g_gameMode].cursors):
+        push(musicChoices, SelectedCharacters[i])
+else:
+    const count = if g_gameMode == GameMode.DOUBLES then 2 else 1
+    if g_lastWinSide == 0:
+        for i < count:
+            push(musicChoices, SelectedCharacters[i])
+    else:
+        const offset = if g_gameMode == GameMode.DOUBLES then 2 else 1
+        for i < count:
+            push(musicChoices, SelectedCharacters[i + offset])
+
+//CurrentSongIdx = SelectedCharacters[0]
+CurrentSongIdx = random_value(musicChoices)
+
 
 frame
 ────────────────────────────────────────────────────────────────────────

@@ -37,38 +37,38 @@ def DrawLevelSelect(pos, index, dim, pal):
 const TOP_ROW = [
     {
         name : "LINCOLN",
-        pal : Palette.RED,
+        pal : PaletteList[0],
     },
     {
         name : "OMAHA",
-        pal : Palette.GREEN,
+        pal : PaletteList[1],
     },
     {
         name : "WICHITA",
-        pal : Palette.AQUA,
+        pal : PaletteList[2],
     },
     {
         name : "AKRON",
-        pal : Palette.BLACK,
+        pal : PaletteList[3],
     },
 ]
 
 const BOT_ROW = [
     {
         name : "DAYTON",
-        pal : Palette.WHITE,
+        pal : PaletteList[4],
     },
     {
         name : "MUNCIE",
-        pal : Palette.MAGENTA,
+        pal : PaletteList[5],
     },
     {
         name : "PEORIA",
-        pal : Palette.YELLOW,
+        pal : PaletteList[6],
     },
     {
         name : "GARY",
-        pal : Palette.BLUE,
+        pal : PaletteList[7],
     },
 ]
 

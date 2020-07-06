@@ -30,6 +30,8 @@ let g_gameMode = GameMode.DOUBLES
 
 const SelectedCharacters = [0, 3, 4, 7]
 
+let g_lastWinSide = nil
+
 //----
 
 
@@ -82,4 +84,16 @@ for name at i in [
         LIGHT : get_sprite_pixel_color(
                 blocksPalette_sprite[0][0], xy(i * 3 + 2, 0)),
     }
+
+const PaletteList = [
+    Palette.RED,
+    Palette.GREEN,
+    Palette.AQUA,
+    Palette.BLUE,
+    Palette.WHITE,
+    Palette.MAGENTA,
+    Palette.YELLOW,
+    Palette.BLACK,
+]
+
 

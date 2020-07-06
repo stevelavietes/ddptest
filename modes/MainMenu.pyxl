@@ -55,17 +55,13 @@ const thermWidth = 48
 const thermInset = 80
 const thermY = 148
 
-const levelTherms = []
-const menuDepths = [0, 0]
+
 
 enter
 ────────────────────────────────────────────────────────────────────────
 
 set_background(gray(0.18))
-
-for i < 2:
-    menuDepths[i] = 0
-
+g_lastWinSide = nil
 
 frame
 ────────────────────────────────────────────────────────────────────────
@@ -80,64 +76,16 @@ draw_sprite(logoWaves_sprite[floor((mode_frames mod 48) / 2)][0], logoPos)
 
 
 const config = configs[MenuGetIndex(menu)]
-if menuDepths[0] == 0:
-    MenuDraw(menu, menuPos)
-    // do not track input on the first frame as restarting from the system
-    // menu will reset joystate in Input.pyxl and register the button press as
-    // a new press
-    if mode_frames and MenuStep(menu, 0) != nil:
-        CursorsPerBoard = config.cursors
-        BoardWidth = config.width
-        
-        menuDepths[0] = 1
-        menuDepths[1] = 1
 
-        g_gameMode = MenuGetIndex(menu)
-        // XXX
-        set_mode(SelectMenu)
+MenuDraw(menu, menuPos)
+// do not track input on the first frame as restarting from the system
+// menu will reset joystate in Input.pyxl and register the button press as
+// a new press
+if mode_frames:
+    for i < 4:
+        if MenuStep(menu, i) != nil:
+            CursorsPerBoard = config.cursors
+            BoardWidth = config.width
+            g_gameMode = MenuGetIndex(menu)
+            set_mode(SelectMenu)
 
-        remove_all(levelTherms)
-
-        push(levelTherms, LevelThermometer(
-                xy(thermInset, thermY), 0,
-                        config.joyIdxs[0]))
-        if config.boards > 1:
-            push(levelTherms, LevelThermometer(
-                    xy(SCREEN_SIZE.x - thermWidth - thermInset, thermY), 1,
-                            config.joyIdxs[1]))
-
-       
-
-else:
-    
-    let anySelected = false
-    // For now, allow it to move forward if only one player progresses
-    // as doubles defaults to controller 3 for the right side.
-    //let allSelected = true
-
-    MenuDraw(menu, menuPos, 0, true)
-    let i = 0
-    for therm in levelTherms:
-        LevelThermometerDraw(therm)
-        if menuDepths[i] < 2:
-            LevelThermometerStep(therm)
-
-            if JoyNewPress(therm.joyIdx, JoyStateKeys.YES):
-                menuDepths[i] = 2
-            else if JoyNewPress(therm.joyIdx, JoyStateKeys.NO):
-                for j in menuDepths:
-                    if menuDepths[j] == 1:
-                        menuDepths[j] = 0
-        else:
-            if JoyNewPress(therm.joyIdx, JoyStateKeys.NO):
-                menuDepths[i] = 1
-
-        if menuDepths[i] >= 2:
-            anySelected = true
-
-        ++i
-
-    if anySelected:
-        for i < size(Wins):
-            Wins[i] = 0
-        set_mode(GameStart)
