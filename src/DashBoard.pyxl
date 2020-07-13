@@ -8,9 +8,10 @@ const levelColor2_ = get_sprite_pixel_color(
 
 
 def DashboardDraw():
-    if g_gameMode == GameMode.SOLO:
-        
-        const pos = xy(156, 66)
+    if size(Boards) == 1:
+        const board = Boards[0]
+
+        const pos = xy(board.pos.x + board.sizeX * 16 + 44, 66)
         draw_sprite(dashboardSolo_sprite[0][0], pos)
 
         ClockDraw(g_clock, pos + xy(-18, -30))
@@ -113,11 +114,11 @@ def DrawChromeBorder(pos, tilesSize, bg = nil, z = 0):
 
 
 def DrawWallpaper():
-    for y < 5:
+    for y < 6:
         for x < 5:
             draw_sprite(wallpaper_sprite[0][0], xy(
                 x * 128 - (game_frames mod 128),
-                y * 64 - (game_frames mod 64)))
+                (y - 1) * 64 + (game_frames mod 64)))
 
 
 

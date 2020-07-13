@@ -1,22 +1,36 @@
 MainMenu
 ════════════════════════════════════════════════════════════════════════
 
-const logoPos = xy(SCREEN_SIZE.x / 2, SCREEN_SIZE.y / 2 - 16)
+const logoPos = xy(SCREEN_SIZE.x / 2, SCREEN_SIZE.y / 2 - 32)
 
+def GoToControllerOrder():
+    if get_mode() == ControllerOrder:
+        return
+    push_mode(ControllerOrder)
 
+set_pause_menu({text: "Controller Order", callback: GoToControllerOrder})
 
 const iconOffsets = [
-    [12, 13, 11, 14, 15],
-    [-1, 10, 11, 10],
-    [-1, -1, -1, -1, 10, 11, 16, 17],
+    [-1, 12, 13, 11, 14, 15],
+    [-1, -1, 10, 11, 10],
+    [-1, -1, -1, -1, -1, 10, 11, 16, 17],
+    [12, 13, 11, 10],
+    [-1, -1, 12, 13, 11, 16, 17],
 ]
 
+const iconPixelOffsets = [
+    0,
+    0,
+    -1,
+    2,
+    0,
+]
 
 def MainMenuItemCallback(mode, index, arg):
     if mode == MenuItemCallbackMode.MEASURE:
         return arg + 4
     else if mode == MenuItemCallbackMode.DRAW:
-        const workPos = clone(arg)
+        const workPos = clone(arg) + xy(iconPixelOffsets[index], 0)
         const v = iconOffsets[index]
         for offset in v:
             if offset >= 0:
@@ -24,38 +38,9 @@ def MainMenuItemCallback(mode, index, arg):
                         0, nil, 1, ZLayers.OVER)
             workPos.x += 8
 
-const menu = Menu(["DOUBLES", "SINGLES", "SOLO"], 0, MainMenuItemCallback)
+const menu = Menu(["DOUBLES", "SINGLES", "SOLO", "CANADIAN", "COSOLO"], 0, MainMenuItemCallback)
 const menuPos = xy(
-        SCREEN_SIZE.x / 2 - MenuGetPixelSize(menu).x / 2, 134)
-
-const configs = [
-    {
-        cursors : 2,
-        width : 8,
-        boards : 2,
-        joyIdxs : [0, 2],
-    },
-    {
-        cursors : 1,
-        width : 6,
-        boards : 2,
-        joyIdxs : [0, 1],
-    },
-
-    {
-        cursors : 1,
-        width : 6,
-        boards : 1,
-        joyIdxs : [0],
-    },
-]
-
-
-const thermWidth = 48
-const thermInset = 80
-const thermY = 148
-
-
+        SCREEN_SIZE.x / 2 - MenuGetPixelSize(menu).x / 2, 124)
 
 enter
 ────────────────────────────────────────────────────────────────────────
@@ -73,10 +58,6 @@ draw_sprite(logo_sprite[0][0], logoPos)
 draw_sprite(logoWaves_sprite[floor((mode_frames mod 48) / 2)][0], logoPos)
 
 
-
-
-const config = configs[MenuGetIndex(menu)]
-
 MenuDraw(menu, menuPos)
 // do not track input on the first frame as restarting from the system
 // menu will reset joystate in Input.pyxl and register the button press as
@@ -84,8 +65,6 @@ MenuDraw(menu, menuPos)
 if mode_frames:
     for i < 4:
         if MenuStep(menu, i) != nil:
-            CursorsPerBoard = config.cursors
-            BoardWidth = config.width
             g_gameMode = MenuGetIndex(menu)
             set_mode(SelectMenu)
 

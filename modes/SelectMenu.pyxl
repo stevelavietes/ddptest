@@ -146,9 +146,7 @@ for joyIdx in config.cursors:
                 play_sound(swap_sound)
 
     else if menuDepth == 1:
-        let levelIdx = joyIdx
-        if size(config.cursors) > 2:
-            levelIdx = if joyIdx < 2 then 0 else 1
+        const levelIdx = if joyIdx >= size(config.joyIdxs[0]) then 1 else 0
 
         if JoyNewPress(joyIdx, JoyStateKeys.NO):
             --menuDepths[joyIdx]
@@ -213,26 +211,19 @@ for joyIdx in config.cursors:
         })
 
     draw_sprite(selectCursors_sprite[2 + joyIdx * 2 + colorOffset][0],
-            pos + xy(5 + joyIdx * 10, -4))
+            pos + xy(5 + joyIdx * 10, -4 - animOffset * 2))
 
     if menuDepth > 0:
         const animOffset = (if (menuDepth == 1 and mode_frames + joyIdx * 8) mod 32 > 15 then 1
                 else 0)
 
-        const pos = xy(0 + 8, levelY + 12 + animOffset)
+        const pos = xy(0 + 8, levelY + 12 + animOffset * 2)
         
-        if size(menuDepths) == 2:
-            if joyIdx:
-                pos.x += SCREEN_SIZE.x / 2
-        else if size(menuDepths) == 2:
-            if joyIdx > 0:
-                pos.x += SCREEN_SIZE.x / 2
 
-        else if size(menuDepths) == 4:
-            if joyIdx > 1:
-                pos.x += SCREEN_SIZE.x / 2
+        if joyIdx >= size(config.joyIdxs[0]):
+            pos.x += SCREEN_SIZE.x / 2
 
-            pos.x += (joyIdx mod 2) * 10
+        pos.x += (joyIdx mod size(config.joyIdxs[0])) * 10
 
         draw_sprite({
             sprite: selectCursors_sprite[2 + joyIdx * 2 + colorOffset][0],
@@ -249,18 +240,13 @@ if size(menuDepths) == 1:
 else:
     let drawLeft = false
     let drawRight = false
-
-    if size(menuDepths) == 2:
-        if menuDepths[0]:
-            drawLeft = true
-        if menuDepths[1]:
-            drawRight = true
-
-    if size(menuDepths) == 4:
-        if menuDepths[0] or menuDepths[1]:
-            drawLeft = true
-        if menuDepths[2] or menuDepths[3]:
-            drawRight = true
+    for depth at i in menuDepths:
+        if depth:
+            // XXX, using i assumes they are in order (which is true for now)
+            if i >= size(config.joyIdxs[0]):
+                drawRight = true
+            else:
+                drawLeft = true
 
     if drawLeft:
         DrawLevelSelect(xy(0, levelY), 0, xy(SCREEN_SIZE.x / 2, levelHeight) , Palette.RED)
@@ -279,6 +265,12 @@ for menuDepth in menuDepths:
     if menuDepth < 2:
         ready = false
         break
+
+if REQUIRE_ONLY_ONE_COMMIT:
+    for menuDepth in menuDepths:
+        if menuDepth >= 2:
+            ready = true
+
 
 if ready:
     set_mode(GameStart)

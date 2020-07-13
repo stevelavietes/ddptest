@@ -4,19 +4,24 @@ GameStart
 enter
 ────────────────────────────────────────────────────────────────────────
 
-set_background(BorderBgColor)
 set_random_seed()
-
-const boardWidth = BoardWidth
 const seed = local_time().millisecond
 
 remove_all(Boards)
 
-push(Boards, Board(boardWidth, xy(16, 28), CursorsPerBoard, 0, seed))
+const config = GameConfigs[g_gameMode]
 
-if g_gameMode != GameMode.SOLO:
-    push(Boards, Board(boardWidth, xy(384 - 16 - boardWidth * 16, 28),
-            CursorsPerBoard, 1, seed))
+
+let boardWidth = config.widths[0]
+
+
+push(Boards, Board(boardWidth, xy(14, 28), config.cursorsPerBoard[0],
+        0, seed, config.joyIdxs[0]))
+
+if size(config.widths) > 1:
+    boardWidth = config.widths[1]
+    push(Boards, Board(boardWidth, xy(384 - 14 - boardWidth * 16, 28),
+            config.cursorsPerBoard[1], 1, seed, config.joyIdxs[1]))
 
     Boards[0].otherBoard = Boards[1]
     Boards[1].otherBoard = Boards[0]
@@ -25,28 +30,16 @@ if g_gameMode != GameMode.SOLO:
 for board in Boards:
     BoardFill(board, 5)
 
-// testing
-// Boards[1].cursors[1].joyIdx = 1
-// Boards[0].cursors[1].joyIdx = 2
 
 ClockReset(g_clock)
 
-
 let musicChoices = []
-if g_lastWinSide == nil:
+if g_lastWinSide == nil or g_lastWinSide >= size(config.joyIdxs):
     for i < size(GameConfigs[g_gameMode].cursors):
         push(musicChoices, SelectedCharacters[i])
 else:
-    const count = if g_gameMode == GameMode.DOUBLES then 2 else 1
-    if g_lastWinSide == 0:
-        for i < count:
-            push(musicChoices, SelectedCharacters[i])
-    else:
-        const offset = if g_gameMode == GameMode.DOUBLES then 2 else 1
-        for i < count:
-            push(musicChoices, SelectedCharacters[i + offset])
-
-//CurrentSongIdx = SelectedCharacters[0]
+    for i in config.joyIdxs[g_lastWinSide]:
+        push(musicChoices, SelectedCharacters[i])
 CurrentSongIdx = random_value(musicChoices)
 
 

@@ -39,13 +39,7 @@ const GameState = {
     LOST : 3,
 }
 
-
-const BorderBgColor = get_sprite_pixel_color(
-        borders_sprite[1][0], xy(0, 0))
-
-
-
-def Board(width_, pos_, numCursors_, boardIdx_, seed_):
+def Board(width_, pos_, numCursors_, boardIdx_, seed_, joyIdxs_):
 
     const board = {
         state : GameState.PLAY,
@@ -151,14 +145,23 @@ def Board(width_, pos_, numCursors_, boardIdx_, seed_):
 
     const cursor1 = Cursor(0, boardIdx_ * numCursors_, boardIdx_ * 8)
     cursor1.posY = 6
+    cursor1.joyIdx = joyIdxs_[0]
     push(board.cursors, cursor1)
+
 
     if numCursors_ > 1:
         const cursor2 = Cursor(
                 1, boardIdx_ * numCursors_ + 1, boardIdx_ * 8 + 16)
         cursor2.posX = width_ - 2
         cursor2.posY = 6
+        cursor2.joyIdx = joyIdxs_[1]
         push(board.cursors, cursor2)
+
+        if DISPLAY_DOUBLES_CURSOR_LABEL:
+            for c in board.cursors:
+                c.drawLabel = true
+
+
 
     // ----
 
@@ -177,7 +180,7 @@ const MANUALRAISEREPEATFRAMES = 5
 def BoardStep(board):
     with blockFrameAnimCount, blockFrame in board:
         blockFrameAnimCount += 1
-        if blockFrameAnimCount > 3:
+        if blockFrameAnimCount >= 6:
             blockFrameAnimCount = 0
             if blockFrame >= 15:
                 blockFrame = 0
@@ -194,6 +197,21 @@ def BoardStep(board):
     if board.shakeData and board.shakeCount:
         --board.shakeCount
         board.shakePos = board.shakeData[board.shakeCount]
+    else:
+        // shake for doubles pending raise?
+        if size(board.cursors) > 1:
+            let raiseCount = 0
+            for cursor in board.cursors:
+                if JoyPress(cursor.joyIdx, JoyStateKeys.RAISE):
+                    ++raiseCount
+
+            if raiseCount and raiseCount < size(board.cursors):
+                board.shakePos = if (mode_frames mod 4) > 1 then 1 else 0
+            else:
+                board.shakePos = 0
+        else:
+            board.shakePos = 0
+
 
     // TODO, exit early if we are not playing
     if get_mode() != Play:
@@ -214,10 +232,11 @@ def BoardStep(board):
 
     // ----
 
-    let raisePressed = false
+    // require all players to be pressing RAISE
+    let raisePressed = true
     for cursor in board.cursors:
-        if JoyPress(cursor.joyIdx, JoyStateKeys.RAISE):
-            raisePressed = true
+        if not JoyPress(cursor.joyIdx, JoyStateKeys.RAISE):
+            raisePressed = false
             break
 
     if board.autoRaiseHold:
@@ -263,8 +282,10 @@ def BoardStep(board):
     // ----
 
     if size(board.cursors) == 2:
-        CursorStep(board.cursors[0], board, board.cursors[1])
-        CursorStep(board.cursors[1], board, board.cursors[0])
+        CursorStep(board.cursors[0], board,
+                if ALLOW_CURSOR_OVERLAP then nil else board.cursors[1])
+        CursorStep(board.cursors[1], board,
+                if ALLOW_CURSOR_OVERLAP then nil else board.cursors[0])
     else:
         CursorStep(board.cursors[0], board, nil)
 
@@ -320,25 +341,27 @@ def BoardStep(board):
 def BoardDraw(board):
     // draw backdrop
     local:
+
+        const isWideSingle = size(Boards) == 1 and board.sizeX > 6
+        const rightOffset = if isWideSingle then 32 else 0
+
         const palIdx = SelectedCharacters[board.cursors[0].joyIdx]
 
-        const bgOpacity = if palIdx == 7 then 1 else 7.0/15.0
         const pal = PaletteList[palIdx]
         
         const rectArgs = {
-            pos: SCREEN_SIZE / xy(4, 2) + xy(SCREEN_SIZE.x / 2 * board.boardIdx, 0),
-            size: SCREEN_SIZE / xy(2, 1),
-            color: extended(pal.MID, {a: bgOpacity}),
+            corner: xy(SCREEN_SIZE.x / 2 * board.boardIdx, 0),
+            size: SCREEN_SIZE / xy(2, 1) + xy(rightOffset, 0),
+            color: pal.BG,
             z: -1,
         }
 
-        draw_rect(rectArgs)
+        draw_corner_rect(rectArgs)
 
         const startX = board.boardIdx * (SCREEN_SIZE.x / 2)
         const startY =  -board.raiseOffset - board.shakePos
         const workPos = xy(startX, startY)
 
-        //let frame = floor(mode_frames / 16) mod 17
         let frame = board.bgFrame
         if frame > 8:
             frame = 8 - (frame - 8)
@@ -347,32 +370,34 @@ def BoardDraw(board):
             sprite: pulseBg_sprite[frame][0],
             pos: workPos,
             z: -1,
-            override_color: pal.LIGHT,
-            opacity : bgOpacity,
+            override_color: pal.FG,
         }
+
+        const bgTileWidth = if isWideSingle then 14 else 12
+
         for y < 15:
             workPos.x = startX
-            for x < 12:
+            for x < bgTileWidth:
                 draw_sprite(args)
                 workPos.x += 16
             workPos.y += 16
 
-        set_clip(xy(SCREEN_SIZE.x / 2 - 1, 0), xy(2, SCREEN_SIZE.y))
-        workPos.x = if board.boardIdx then startX else startX + 11 * 16
+        
+        set_clip(xy(SCREEN_SIZE.x / 2 - 1, 0) + xy(
+                rightOffset, 0), xy(2, SCREEN_SIZE.y))
+        workPos.x = if board.boardIdx then startX else startX + (bgTileWidth - 1) * 16
         workPos.y = startY
 
-        args.opacity = 1.0
-        if palIdx == 7:
-            args.override_color = pal.MID
-        rectArgs.color = if palIdx == 7 then pal.DARK else pal.MID
-        draw_rect(rectArgs)
-        
+        args.override_color = pal.FG_LIGHT
+        rectArgs.color = pal.BG_LIGHT
+        draw_corner_rect(rectArgs)
+
         for y < 15:
             draw_sprite(args)
             workPos.y += 16
 
         reset_clip()
-
+        
 
 
     // draw border
@@ -411,7 +436,7 @@ def BoardDraw(board):
         // TODO, align to borders
         if board.autoRaiseHold:
             const bottom = board.pos.y + (board.sizeY - 1) * 16 - 4
-            const left = board.pos.x - 5
+            const left = board.pos.x - 7
             const top = max(board.pos.y + 3, bottom - board.autoRaiseHold / 2)
 
             draw_line(xy(left, bottom), xy(left, top),
@@ -420,7 +445,7 @@ def BoardDraw(board):
 
 
         if board.toppedOutFrameCount:
-            const right = board.pos.x + (board.sizeX * 16) + 4
+            const right = board.pos.x + (board.sizeX * 16) + 6
             const height = (board.sizeY - 1) * 16 - 4
             const bottom = board.pos.y + height
             const normTop = (board.toppedOutFrameCount
@@ -498,8 +523,12 @@ def BoardDraw(board):
 
         record = record.next_
 
+    set_clip(xy(0, board.pos.y - 1), xy(SCREEN_SIZE.x, (board.sizeY - 1) * 16))
+
     for cursor in board.cursors:
         CursorDraw(cursor, xy(pos.x, orgY), board)
+
+    reset_clip()
 
     let bubble = board.bubblePool.first
     while bubble:
@@ -647,7 +676,7 @@ def BoardRaise(board):
                 record.y -= 1
             record = record.next_
 
-        if g_gameMode == GameMode.SOLO:
+        if size(Boards) == 1:
             if (random_integer(0, 255) <
                     LevelConstants.SOLOGARBABEPROBABILITY[board.level]):
                 const garbageSize = LevelConstants.SOLOGARBAGESIZES[

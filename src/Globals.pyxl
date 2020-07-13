@@ -10,21 +10,49 @@ const GameMode = {
     DOUBLES : 0,
     SINGLES : 1,
     SOLO : 2,
+    CANADIAN : 3,
+    COOP : 4,
 }
 
 const GameConfigs = {}
 
 GameConfigs[GameMode.DOUBLES] = {
     cursors: [0, 1, 2, 3],
+    widths: [8, 8],
+    cursorsPerBoard: [2, 2],
+    joyIdxs: [[0, 1], [2, 3]],
 }
 
 GameConfigs[GameMode.SINGLES] = {
     cursors: [0, 1],
+    widths: [6, 6],
+    cursorsPerBoard: [1, 1],
+    joyIdxs: [[0], [1]],
 }
 
 GameConfigs[GameMode.SOLO] = {
     cursors: [0],
+    widths: [6],
+    cursorsPerBoard: [1],
+    joyIdxs: [[0]],
 }
+
+GameConfigs[GameMode.CANADIAN] = {
+    cursors: [0, 1, 2],
+    widths: [8, 6],
+    cursorsPerBoard: [2, 1],
+    joyIdxs: [[0, 1], [2]],
+}
+
+GameConfigs[GameMode.COOP] = {
+    cursors: [0, 1],
+    widths: [8],
+    cursorsPerBoard: [2],
+    joyIdxs: [[0, 1]],
+}
+
+
+
 
 let g_gameMode = GameMode.DOUBLES
 
@@ -46,9 +74,6 @@ def GlobalsStep():
 
 const Wins = [0, 0]
 const Level = [4, 4]
-
-let CursorsPerBoard = 2
-let BoardWidth = 8
 let Boards = []
 
 
@@ -57,9 +82,9 @@ const g_clockPos = xy(SCREEN_SIZE.x / 2 - 18, 2)
 
 const Palette = {
     WHITE : {
-        DARK: gray(0.7),
-        MID: gray(0.8),
-        LIGHT: gray(0.9),
+        DARK: rgba(0.7, 0.7, 0.7, 1),
+        MID: rgba(0.8, 0.8, 0.8, 1),
+        LIGHT: rgba(0.9, 0.9, 0.9, 1),
     },
     BLACK : {
         DARK: gray(0.2),
@@ -96,4 +121,23 @@ const PaletteList = [
     Palette.BLACK,
 ]
 
-
+local:
+    // generate background colors for pattern tiles
+    def pdOver(a, b, t):
+        return rgba(
+            b.r * (1 - t) + a.r * t,
+            b.g * (1 - t) + a.g * t,
+            b.b * (1 - t) + a.b * t,
+            1)
+    for p in PaletteList:
+        if p == Palette.BLACK:
+            p.BG = p.MID
+            p.FG = p.LIGHT
+            p.BG_LIGHT = p.DARK
+            p.FG_LIGHT = p.MID
+        else:
+            const mixAmt = 7/15.0
+            p.BG = pdOver(p.MID, rgba(0.4, 0.4, 0.4, 1.0), mixAmt)
+            p.FG = pdOver(p.LIGHT, p.BG, mixAmt)
+            p.BG_LIGHT = p.MID
+            p.FG_LIGHT = p.LIGHT

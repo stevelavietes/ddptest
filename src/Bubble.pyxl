@@ -44,7 +44,7 @@ def BubbleStep(bubble, pool):
             LinkedPoolRemove(pool, bubble)
             return
         else:
-            if g_gameMode == GameMode.SOLO:
+            if size(Boards) == 1:
                 bubble.dir = BubbleDir.RIGHT
             else if bubble.garbageTarget.boardIdx:
                 bubble.dir = BubbleDir.RIGHT
@@ -66,7 +66,7 @@ def BubbleStep(bubble, pool):
                 
                 let dst = nil
 
-                if g_gameMode == GameMode.SOLO:
+                if size(Boards) == 1:
                     const board = Boards[bubble.garbageTarget]
                     dst = clone(board.pos)
                     dst.x += board.sizeX * 16
@@ -176,7 +176,7 @@ def BubbleDeliverGarbage(bubble):
 
     if bubble.metal:
         for i < bubble.garbageLevel:
-            if g_gameMode == GameMode.SOLO:
+            if size(Boards) == 1:
                 const board = Boards[bubble.garbageTarget]
                 board.score += board.sizeX * 3
             else:
@@ -194,7 +194,7 @@ def BubbleDeliverGarbage(bubble):
     garbageTotal *= bubble.garbageMult
 
 
-    if g_gameMode == GameMode.SOLO:
+    if size(Boards) == 1:
         Boards[bubble.garbageTarget].score += garbageTotal
 
         bubble.garbageTarget = nil

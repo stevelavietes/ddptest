@@ -23,6 +23,8 @@ const JoyStateMapping_ = [
     
 ]
 
+const JoyIdxMapping_ = [0, 1, 2, 3]
+
 const JoyState_ = []
 const JoyStatePrev_ = []
 local:
@@ -36,6 +38,7 @@ local:
 
 def JoyUpdate():
     for i < 4:
+        const idx = JoyIdxMapping_[i]
         const state = JoyState_[i]
         const statePrev = JoyStatePrev_[i]
         for j < size(statePrev):
@@ -44,7 +47,7 @@ def JoyUpdate():
         for j < size(JoyStateMapping_):
             state[j] = false
             for entry in JoyStateMapping_[j]:
-                if gamepad_array[i][entry[0]] == entry[1]:
+                if gamepad_array[idx][entry[0]] == entry[1]:
                     state[j] = true
                     break
 
@@ -57,6 +60,10 @@ def JoyNewPress(idx, key):
 def JoyResetLast(idx, key):
     JoyState_[idx][key] = false
     JoyStatePrev_[idx][key] = false
+
+def JoyActivateLast(idx, key):
+    JoyState_[idx][key] = true
+    JoyStatePrev_[idx][key] = true
 
 
 

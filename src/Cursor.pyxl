@@ -33,6 +33,7 @@ def Cursor(cursorIdx_ = 0, joyIdx_ = 0, phaseOffset_ = 0):
         bumpX : 0,
         bumpY : 0,
         
+        drawLabel : false,
     }
     return cursor
 
@@ -224,10 +225,12 @@ def CursorDraw(cursor, pos, board=nil):
 
     let z = ZLayers.CURSORUP
 
+    let frameOffset = 0
 
     with phaseCount, phaseOffset in cursor:
         if ((phaseCount + phaseOffset) mod 32) > 15:
             spriteFrame += 1
+            frameOffset = 1
             z = ZLayers.BASE
     if cursor.state == CursorState.SWAPPING:
         //spriteFrame += 1
@@ -245,7 +248,23 @@ def CursorDraw(cursor, pos, board=nil):
     if get_mode() == GameStart:
         alpha = mode_frames / 180.0
 
-    draw_sprite(cursor_sprite[0][spriteFrame], cursorPos, 0, nil, alpha, z)
+
+
+    draw_sprite(cursor_sprite[if DISPLAY_THICK_CURSOR then 1 + THICK_CURSOR_VARIANT else 0][
+                spriteFrame],  cursorPos, 0, nil, alpha, z)
+
+    if cursor.drawLabel:
+        cursorPos.x += 20
+        if cursor.joyIdx mod 2:
+            cursorPos.y += 24
+            cursorPos.y -= frameOffset
+        else:
+            cursorPos.y += frameOffset
+
+        draw_sprite(selectCursors_sprite[cursor.joyIdx + 10][0], cursorPos, 0, nil, alpha, z)
+
+
+
 
 
 //----
