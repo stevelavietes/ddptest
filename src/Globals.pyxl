@@ -21,6 +21,7 @@ GameConfigs[GameMode.DOUBLES] = {
     widths: [8, 8],
     cursorsPerBoard: [2, 2],
     joyIdxs: [[0, 1], [2, 3]],
+    label: "DOUBLES",
 }
 
 GameConfigs[GameMode.SINGLES] = {
@@ -28,6 +29,7 @@ GameConfigs[GameMode.SINGLES] = {
     widths: [6, 6],
     cursorsPerBoard: [1, 1],
     joyIdxs: [[0], [1]],
+    label: "SINGLES",
 }
 
 GameConfigs[GameMode.SOLO] = {
@@ -35,6 +37,7 @@ GameConfigs[GameMode.SOLO] = {
     widths: [6],
     cursorsPerBoard: [1],
     joyIdxs: [[0]],
+    label: "SOLO",
 }
 
 GameConfigs[GameMode.CANADIAN] = {
@@ -42,6 +45,7 @@ GameConfigs[GameMode.CANADIAN] = {
     widths: [8, 6],
     cursorsPerBoard: [2, 1],
     joyIdxs: [[0, 1], [2]],
+    label: "CANADIAN DOUBLES",
 }
 
 GameConfigs[GameMode.COOP] = {
@@ -49,6 +53,7 @@ GameConfigs[GameMode.COOP] = {
     widths: [8],
     cursorsPerBoard: [2],
     joyIdxs: [[0, 1]],
+    label: "COSOLO",
 }
 
 

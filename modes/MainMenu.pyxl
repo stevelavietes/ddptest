@@ -1,7 +1,7 @@
 MainMenu
 ════════════════════════════════════════════════════════════════════════
 
-const logoPos = xy(SCREEN_SIZE.x / 2, SCREEN_SIZE.y / 2 - 32)
+const logoPos = xy(SCREEN_SIZE.x / 2 + 2, SCREEN_SIZE.y / 2 - 32)
 
 def GoToControllerOrder():
     if get_mode() == ControllerOrder:
@@ -40,7 +40,7 @@ def MainMenuItemCallback(mode, index, arg):
 
 const menu = Menu(["DOUBLES", "SINGLES", "SOLO", "CANADIAN", "COSOLO"], 0, MainMenuItemCallback)
 const menuPos = xy(
-        SCREEN_SIZE.x / 2 - MenuGetPixelSize(menu).x / 2, 124)
+        SCREEN_SIZE.x / 2 - MenuGetPixelSize(menu).x / 2, 118)
 
 enter
 ────────────────────────────────────────────────────────────────────────
