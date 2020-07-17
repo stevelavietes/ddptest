@@ -64,7 +64,7 @@ MenuDraw(menu, menuPos)
 // a new press
 if mode_frames:
     for i < 4:
-        if MenuStep(menu, i) != nil:
+        if MenuStep(menu, i) == 1:
             g_gameMode = MenuGetIndex(menu)
             set_mode(SelectMenu)
 

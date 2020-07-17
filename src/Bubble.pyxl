@@ -148,8 +148,26 @@ def BubbleDraw(bubble):
                     r, rgba(1, 1, 1, nt), nil, ZLayers.OVER)
 
     if bubble.count < BubbleConstants.BUBBLETIME:
-        let sprite = nil
 
+        if bubble.garbageTarget != nil:
+
+            for i < 6:
+                const a = i * (π / 3) * (bubble.count / 30.0)
+                const s = sin(a)
+                const c = cos(a)
+
+                const p1 = xy(0,
+                        (BubbleConstants.BUBBLETIME - bubble.count) * 1.5)
+
+                const p2 = xy(
+                    p1.x * c - p1.y * s,
+                    p1.x * s + p1.y * c)
+
+                draw_disk(bubble.pos + xy(8, 8) + p2,
+                        4, gray(1), gray(0), ZLayers.OVER)
+
+
+        let sprite = nil
 
         if bubble.metal:
             sprite = blocks_sprite[BubbleConstants.SPRITEROW][17]

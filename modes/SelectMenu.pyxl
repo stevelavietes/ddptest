@@ -313,7 +313,9 @@ else:
                 drawLeft = true
 
     if drawLeft:
-        DrawLevelSelect(xy(0, levelY), 0, xy(SCREEN_SIZE.x / 2, levelHeight) , Palette.RED)
+
+        DrawLevelSelect(xy(0, levelY), 0, xy(SCREEN_SIZE.x / size(config.joyIdxs),
+                levelHeight) , Palette.RED)
 
     if drawRight:
         DrawLevelSelect(xy(SCREEN_SIZE.x / 2, levelY), 1,
