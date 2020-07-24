@@ -57,6 +57,38 @@ GameConfigs[GameMode.COOP] = {
 }
 
 
+let HiScores = {}
+
+def InitHighScores():
+    HiScores = {}
+    const hiScoreModes = [GameMode.SOLO, GameMode.COOP]
+    for mode in hiScoreModes:
+        HiScores[mode] = []
+        for i < 10:
+            push(HiScores[mode], {
+                    minutes: 0,
+                    seconds: 0,
+                    score: 0,
+                })
+
+
+def ResetHiScores():
+    InitHighScores()
+    SaveHiScores()
+
+const HiScoresKey = "HISCORES"
+def LoadHiScores():
+    const loaded = load_local(HiScoresKey)
+    if loaded:
+        HiScores = loaded
+
+def SaveHiScores():
+    save_local(HiScoresKey, HiScores)
+
+
+InitHighScores()
+LoadHiScores()
+
 
 
 let g_gameMode = GameMode.DOUBLES

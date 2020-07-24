@@ -11,6 +11,10 @@ enter
 
 MenuSetIndex(testMenu, 0)
 
+if HiScores[g_gameMode]:
+    SaveHiScores()
+
+
 frame
 ────────────────────────────────────────────────────────────────────────
 

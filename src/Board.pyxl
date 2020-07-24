@@ -217,6 +217,16 @@ def BoardStep(board):
     if get_mode() != Play:
         return
 
+
+    if HiScores[g_gameMode]:
+        const entry = HiScores[g_gameMode][board.level]
+        if board.score and board.score >= entry.score:
+            entry.score = board.score
+            entry.minutes = g_clock.minutes
+            entry.seconds = g_clock.seconds
+            
+
+
     if DEBUG_GARBAGE:
         if JoyNewPress(board.cursors[0].joyIdx, JoyStateKeys.MENU):
             BoardAppendGarbage(board, 4, 1, 0)
@@ -340,11 +350,11 @@ def BoardStep(board):
 
 def BoardDraw(board):
     // draw backdrop
+    
+    const isWideSingle = size(Boards) == 1 and board.sizeX > 6
+    const rightOffset = if isWideSingle then 32 else 0
+
     local:
-
-        const isWideSingle = size(Boards) == 1 and board.sizeX > 6
-        const rightOffset = if isWideSingle then 32 else 0
-
         const palIdx = SelectedCharacters[board.cursors[0].joyIdx]
 
         const pal = PaletteList[palIdx]
@@ -454,8 +464,16 @@ def BoardDraw(board):
             draw_line(xy(right, bottom), xy(right, top),
                     rgb(1, 0, 0), ZLayers.MASK, 1)
 
+    // hi scores
+    if size(Boards) == 1:
+        const left = SCREEN_SIZE.x / 2 + rightOffset
+        DrawScores(xy(left + ((SCREEN_SIZE.x - left) - HiScoresWidth) / 2, 44),
+                GameConfigs[g_gameMode].label + " HI SCORES",
+                        HiScores[g_gameMode], board.level)
 
-    set_clip(xy(0, board.pos.y - 1), xy(SCREEN_SIZE.x, (board.sizeY - 1) * 16))
+
+    set_clip(xy(board.pos.x - 2, board.pos.y - 1),
+            xy(board.sizeX * 16 + 4, (board.sizeY - 1) * 16))
 
 
     const pos = BoardGetScreenPos(board)
@@ -523,8 +541,9 @@ def BoardDraw(board):
 
         record = record.next_
 
-    set_clip(xy(0, board.pos.y - 1), xy(SCREEN_SIZE.x, (board.sizeY - 1) * 16))
-
+    set_clip(xy(board.pos.x - 2, board.pos.y - 1),
+            xy(board.sizeX * 16 + 4, (board.sizeY - 1) * 16))
+    
     for cursor in board.cursors:
         CursorDraw(cursor, xy(pos.x, orgY), board)
 

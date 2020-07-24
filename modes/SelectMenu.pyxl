@@ -54,7 +54,7 @@ let readyCount = nil
 
 const TOP_ROW = [
     {
-        name : "LINCOLN",
+        name : "JOLIET",
         pal : PaletteList[0],
     },
     {
