@@ -28,7 +28,7 @@
         "modes/GameStart",
         "modes/Play",
         "modes/GameEnd",
-        "modes/MainMenu",
+        "modes/MainMenu*",
         "modes/SelectMenu"
     ],
     "start_mode": "MainMenu",
