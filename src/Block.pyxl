@@ -149,7 +149,7 @@ def BlockReset(block):
 
 //---- 
 
-def BlockDraw(block, pos, spriteFrame=0, force=false):
+def BlockDraw(block, pos, spriteFrame=0, force=false, override_color=nil):
     if block.type == BlockType.NONE:
         return
     
@@ -189,6 +189,7 @@ def BlockDraw(block, pos, spriteFrame=0, force=false):
         // otherwise draw as normal
         blockFrame = 0
 
+    let useOverrideColor = nil
 
     if block.state == BlockState.MATCHING:
         blockFrame = 0
@@ -208,6 +209,11 @@ def BlockDraw(block, pos, spriteFrame=0, force=false):
             else:
                 blockFrame = 0
 
-    draw_sprite(
-        blocks_sprite[block.type - 1][blockFrame], pos)
+            useOverrideColor = override_color
+
+    draw_sprite({
+        sprite: blocks_sprite[block.type - 1][blockFrame],
+        pos: pos,
+        override_color: useOverrideColor,
+    })
 

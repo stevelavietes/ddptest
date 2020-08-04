@@ -1,0 +1,13 @@
+{
+    "url": "portraitLayers.png",
+    "sprite_size": {
+        "x": 40,
+        "y": 36
+    },
+    "license": "TODO: Insert License",
+    "gutter": 0,
+    
+    "default_frames": 1,
+    "transpose": true,
+    "pivot" : {"x" : 0, "y" : 0}
+}

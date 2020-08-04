@@ -154,8 +154,8 @@ const PaletteList = [
     Palette.BLUE,
     Palette.WHITE,
     Palette.MAGENTA,
-    Palette.YELLOW,
     Palette.BLACK,
+    Palette.YELLOW,
 ]
 
 local:
@@ -178,3 +178,40 @@ local:
             p.FG = pdOver(p.LIGHT, p.BG, mixAmt)
             p.BG_LIGHT = p.MID
             p.FG_LIGHT = p.LIGHT
+
+
+
+const Characters = [
+    {
+        name : "JOLIET",
+        pal : PaletteList[0],
+    },
+    {
+        name : "OMAHA",
+        pal : PaletteList[1],
+    },
+    {
+        name : "WICHITA",
+        pal : PaletteList[2],
+    },
+    {
+        name : "AKRON",
+        pal : PaletteList[3],
+    },
+    {
+        name : "DAYTON",
+        pal : PaletteList[4],
+    },
+    {
+        name : "MUNCIE",
+        pal : PaletteList[5],
+    },
+    {
+        name : "PEORIA",
+        pal : PaletteList[6],
+    },
+    {
+        name : "GARY",
+        pal : PaletteList[7],
+    },
+]

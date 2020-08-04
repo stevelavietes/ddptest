@@ -1,22 +1,8 @@
 SelectMenu
 ════════════════════════════════════════════════════════════════════════
 
-def DrawPortait(pos, name, pal):
-    DrawChromeBorder(pos, xy(5, 6), gray(0.5))
-    
-    draw_rect(pos + xy(20, 22), xy(42, 38), pal.MID, gray(0))
-    draw_rect(pos + xy(20, 22), xy(40, 36), nil, pal.DARK)
 
 
-    draw_text({
-        font: name_font,
-        text: name,
-        pos: pos + xy(20, 46),
-        color: gray(1),
-        x_align: "center",
-        y_align: "center",
-        shadow: gray(0.25),
-    })
 
 def DrawPlayerBadge(pos, idx, blackWhite, redBlue, opacity default 1):
     draw_sprite({
@@ -51,7 +37,7 @@ def DrawLevelSelect(pos, index, dim, pal):
 
 let readyCount = nil
 
-
+/*
 const TOP_ROW = [
     {
         name : "JOLIET",
@@ -89,6 +75,7 @@ const BOT_ROW = [
         pal : PaletteList[7],
     },
 ]
+*/
 
 
 
@@ -128,12 +115,12 @@ draw_text({
 
 
 
-for entry at i in TOP_ROW:
-    DrawPortait(xy(LEFT + i * SPACING, TOP), entry.name, entry.pal)
+for i < 4:
+    const entry1 = Characters[i]
+    DrawPortait(xy(LEFT + i * SPACING, TOP), entry1.name, entry1.pal, i)
 
-for entry at i in BOT_ROW:
-    DrawPortait(xy(LEFT + i * SPACING, BOT), entry.name, entry.pal)
-
+    const entry2 = Characters[i + 4]
+    DrawPortait(xy(LEFT + i * SPACING, BOT), entry2.name, entry2.pal, i + 4)
 
 
 

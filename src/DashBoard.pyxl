@@ -7,6 +7,10 @@ const levelColor2_ = get_sprite_pixel_color(
         dashboard_sprite[0][0], xy(6, 58))
 
 
+
+
+
+
 def DashboardDraw():
     if size(Boards) == 1:
         const board = Boards[0]
@@ -113,12 +117,88 @@ def DrawChromeBorder(pos, tilesSize, bg = nil, z = 0):
             0, nil, 1.0, z)
 
 
+def DrawPortait(pos, name, pal, idx, flip = false, frame = 0):
+    DrawChromeBorder(pos, xy(5, 6), gray(0.5))
+    
+    draw_rect(pos + xy(20, 22), xy(42, 38), pal.MID, gray(0))
+    draw_rect(pos + xy(20, 22), xy(40, 36), nil, pal.DARK)
+
+
+    draw_text({
+        font: name_font,
+        text: name,
+        pos: pos + xy(20, 46),
+        color: gray(1),
+        x_align: "center",
+        y_align: "center",
+        shadow: gray(0.25),
+    })
+
+    const scale = xy(1, 1)
+    const adjX = xy(0, 0)
+
+    const shadowOffset = xy(3, 0)
+
+    if flip:
+        scale.x = -1
+        adjX.x = 40
+        shadowOffset.x *= -1
+
+    draw_sprite({
+        sprite: portraitLayers_sprite[idx][frame],
+        pos: pos + xy(0, 4) + adjX + shadowOffset,
+        override_color: pal.DARK,
+        scale: scale,
+        })
+
+
+    draw_sprite({
+        sprite: portraitLayers_sprite[idx][frame],
+        pos: pos + xy(0, 4) + adjX,
+        scale: scale,
+    })
+
+def DrawNarrowPortait(pos, name, pal, idx, flip = false, frame = 0):
+    const scale = xy(1, 1)
+    const adjX = xy(0, 0)
+    const shadowOffset = xy(3, 0)
+
+    if flip:
+        scale.x = -1
+        adjX.x = 36
+        shadowOffset.x *= -1
+
+    DrawChromeBorder(pos, xy(4, 4), gray(0.5))
+
+    draw_corner_rect(pos + xy(0, 4), xy(32, 32), pal.MID, pal.DARK)
+    set_clip(pos + xy(0, 4), xy(32, 32))
+
+    draw_sprite({
+        sprite: portraitLayers_sprite[idx][frame],
+        pos: pos  + adjX + shadowOffset,
+        override_color: pal.DARK,
+        scale: scale,
+        })
+
+    draw_sprite({
+        sprite: portraitLayers_sprite[idx][frame],
+        pos: pos + adjX,
+        scale: scale,
+    })
+
+    reset_clip()
+
+
+
+
 def DrawWallpaper():
     for y < 6:
         for x < 5:
             draw_sprite(wallpaper_sprite[0][0], xy(
                 x * 128 - (game_frames mod 128),
                 (y - 1) * 64 + (game_frames mod 64)))
+
+
 
 
 

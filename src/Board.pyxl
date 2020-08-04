@@ -92,6 +92,11 @@ def Board(width_, pos_, numCursors_, boardIdx_, seed_, joyIdxs_):
         bgCounter : 0,
 
         score : 0,
+
+        fadeCount : 0,
+        fadeLimit : 10,
+        unfadedTypes : {},
+
     }
 
     board.blockTypeCount = 5
@@ -299,6 +304,33 @@ def BoardStep(board):
     else:
         CursorStep(board.cursors[0], board, nil)
 
+
+
+    // require all players to be pressing HINT
+    let hintPressed = true
+    for cursor in board.cursors:
+        if not JoyPress(cursor.joyIdx, JoyStateKeys.HINT):
+            hintPressed = false
+            break
+    if not hintPressed:
+        board.fadeCount = 0
+        remove_all(board.unfadedTypes)
+    else:
+        if not board.fadeCount:
+            for cursor in board.cursors:
+                const row = BoardGetRow(board, cursor.posY)
+                for i < 2:
+                    const block = row[BoardGetHorzIndex(board, cursor.posX + i)]
+                    if (block.state == BlockState.IDLE
+                            and block.type >= BlockType.RED
+                            and block.type <= BlockType.BANG):
+                        board.unfadedTypes[block.type] = true
+
+        board.fadeCount = min(board.fadeCount + 1, board.fadeLimit)
+
+
+
+
     // ----
 
     let bubble = board.bubblePool.first
@@ -345,6 +377,12 @@ def BoardStep(board):
                 BoardLose(board)
     else:
         board.toppedOutFrameCount = 0;
+
+
+
+
+
+
 
 //----------------------------------------------------------------------------
 
@@ -471,6 +509,66 @@ def BoardDraw(board):
                 GameConfigs[g_gameMode].label + " HI SCORES",
                         HiScores[g_gameMode], board.level)
 
+    // portraits
+    for cursor at i in board.cursors:
+        const selectedCharacter = SelectedCharacters[cursor.joyIdx]
+        const entry = Characters[selectedCharacter]
+        const portraitPos = clone(board.pos)
+
+
+
+        let adjX = 5
+        for b in Boards:
+            if b.sizeX > 6:
+                adjX = 0
+                break
+
+        if g_gameMode == GameMode.COOP:
+            adjX = -20
+
+        if board.boardIdx:
+            portraitPos.x = SCREEN_SIZE.x / 2 + 8 + adjX
+        else:
+            portraitPos.x = SCREEN_SIZE.x / 2 - 40 - adjX
+
+        if size(Boards) == 1:
+            portraitPos.y += 72
+
+        portraitPos.y += i * 42
+
+
+        let frame = if (game_frames + selectedCharacter * 16) mod 128 < 8 then 1 else 0
+
+        let mood = nil
+
+
+        if get_mode() == Play:
+            if board.anyColumnsTopped or board.shakeCount:
+                mood = "concern"
+            else if board.autoRaiseHold:
+                mood = "glee"
+        else:
+            if board.state == GameState.LOST:
+                mood = "concern"
+            else if board.state == GameState.WON:
+                mood = "glee"
+
+        if mood:
+            const frameOffset = if (game_frames + selectedCharacter * 8) mod 64 < 32 then 0 else 1
+            if mood == "concern":
+                frame = 2
+            else if mood == "glee":
+                frame = 4
+            frame += frameOffset
+
+
+        DrawNarrowPortait(portraitPos + xy(0, board.shakePos),
+                entry.name, entry.pal, selectedCharacter,
+                        board.boardIdx == 0, frame)
+
+
+
+
 
     set_clip(xy(board.pos.x - 2, board.pos.y - 1),
             xy(board.sizeX * 16 + 4, (board.sizeY - 1) * 16))
@@ -478,6 +576,18 @@ def BoardDraw(board):
 
     const pos = BoardGetScreenPos(board)
     const orgY = pos.y
+
+
+    // TODO block fade check
+    
+    const overrideColors = {}
+
+    if board.fadeCount:
+        const fadeColor = rgba(0, 0, 0, board.fadeCount / board.fadeLimit * 0.75)
+        for i < 7:
+            if not board.unfadedTypes[i + 1]:
+                overrideColors[i + 1] = fadeColor
+
 
     for y < board.sizeY:
         const row = BoardGetRow(board, y)
@@ -491,7 +601,8 @@ def BoardDraw(board):
             if not isBottomRow and board.columnsTopped[x]:
                 columnFrame = SquashFrames[board.squashFrame] - BlockFrame.IDLE
 
-            BlockDraw(block, xy(pos.x + x * 16, posY), columnFrame)
+            BlockDraw(block, xy(pos.x + x * 16, posY), columnFrame, false,
+                    overrideColors[block.type])
 
     if get_mode() == GameStart:
         for cursor in board.cursors:

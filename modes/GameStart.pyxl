@@ -29,6 +29,12 @@ if size(config.widths) > 1:
 
 for board in Boards:
     BoardFill(board, 5)
+    if board.sizeX > 6:
+        if board.boardIdx:
+            board.pos.x += 4
+        else:
+            board.pos.x -= 4
+
 
 
 ClockReset(g_clock)

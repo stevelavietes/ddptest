@@ -45,6 +45,8 @@
         "dashboardSolo_sprite": "res/dashboardSolo.sprite.json",
         "levelThermometer_sprite": "res/levelThermometer.sprite.json",
         "menuBackdrop_sprite": "res/menuBackdrop.sprite.json",
+        "portraitLayers_sprite": "res/portraitLayers.sprite.json",
+        
         "selectCursors_sprite": "res/selectCursors.sprite.json",
         "standardFont_sprite": "res/standardFont.sprite.json",
         "wallpaper_sprite": "res/wallpaper.sprite.json",

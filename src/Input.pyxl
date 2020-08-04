@@ -8,6 +8,7 @@ const JoyStateKeys = {
     MENU : 6,
     YES : 7,
     NO : 8,
+    HINT: 9,
 }
 
 const JoyStateMapping_ = [
@@ -20,7 +21,7 @@ const JoyStateMapping_ = [
     [["q", 1]],
     [["a", 1]],
     [["b", 1]],
-    
+    [["c", 1]],
 ]
 
 const JoyIdxMapping_ = [0, 1, 2, 3]
