@@ -4,7 +4,7 @@ GameStart
 enter
 ────────────────────────────────────────────────────────────────────────
 
-set_random_seed()
+set_random_seed(local_time().millisecond)
 const seed = local_time().millisecond
 
 remove_all(Boards)
@@ -39,14 +39,15 @@ for board in Boards:
 
 ClockReset(g_clock)
 
-let musicChoices = []
+
 if g_lastWinSide == nil or g_lastWinSide >= size(config.joyIdxs):
-    for i < size(GameConfigs[g_gameMode].cursors):
-        push(musicChoices, SelectedCharacters[i])
+    const musicChoices = []
+    for board in Boards:
+        push(musicChoices, board.bgIndex)
+    CurrentSongIdx = random_value(musicChoices)
 else:
-    for i in config.joyIdxs[g_lastWinSide]:
-        push(musicChoices, SelectedCharacters[i])
-CurrentSongIdx = random_value(musicChoices)
+    CurrentSongIdx = Boards[g_lastWinSide].bgIndex
+
 
 
 frame

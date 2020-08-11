@@ -165,10 +165,18 @@ def Board(width_, pos_, numCursors_, boardIdx_, seed_, joyIdxs_):
         if DISPLAY_DOUBLES_CURSOR_LABEL:
             for c in board.cursors:
                 c.drawLabel = true
+    // ----
 
 
+    const bgChoices = []
+    for cursor in board.cursors:
+        const bgChoice = SelectedCharacters[cursor.joyIdx]
+        push(bgChoices, bgChoice)
+
+    board.bgIndex = random_value(bgChoices)
 
     // ----
+
 
     return board
 
@@ -393,7 +401,7 @@ def BoardDraw(board):
     const rightOffset = if isWideSingle then 32 else 0
 
     local:
-        const palIdx = SelectedCharacters[board.cursors[0].joyIdx]
+        const palIdx = board.bgIndex //SelectedCharacters[board.cursors[0].joyIdx]
 
         const pal = PaletteList[palIdx]
         
