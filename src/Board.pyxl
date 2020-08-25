@@ -569,10 +569,12 @@ def BoardDraw(board):
                 frame = 4
             frame += frameOffset
 
+        const config = GameConfigs[g_gameMode]
+        const drawNote = selectedCharacter == CurrentSongIdx and size(config.cursors) > 1
 
         DrawNarrowPortait(portraitPos + xy(0, board.shakePos),
                 entry.name, entry.pal, selectedCharacter,
-                        board.boardIdx == 0, frame)
+                        board.boardIdx == 0, frame, drawNote)
 
 
 

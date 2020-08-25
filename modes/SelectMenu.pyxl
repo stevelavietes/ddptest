@@ -87,6 +87,15 @@ const BOT = 106
 
 const menuDepths = []
 
+def TotalMenuDepths():
+    let total = 0
+    for v in menuDepths:
+        total += v
+    return total
+
+def PlayCommitSound():
+    SfxPop(TotalMenuDepths())
+
 enter
 ────────────────────────────────────────────────────────────────────────
 
@@ -153,7 +162,7 @@ for joyIdx in config.cursors:
                 play_sound(cursor_sound)
             else if JoyNewPress(joyIdx, JoyStateKeys.YES):
                 ++menuDepths[joyIdx]
-                play_sound(swap_sound)
+                PlayCommitSound()
 
             if JoyNewPress(joyIdx, JoyStateKeys.NO):
                 let goBack = true
@@ -163,18 +172,18 @@ for joyIdx in config.cursors:
                         break
                 if goBack:
                     set_mode(MainMenu)
-                    play_sound(swap_sound)
+                    PlayCommitSound()
 
         else if menuDepth == 1:
             const levelIdx = if joyIdx >= size(config.joyIdxs[0]) then 1 else 0
 
             if JoyNewPress(joyIdx, JoyStateKeys.NO):
                 --menuDepths[joyIdx]
-                play_sound(swap_sound)
+                PlayCommitSound()
 
             if JoyNewPress(joyIdx, JoyStateKeys.YES):
                 ++menuDepths[joyIdx]
-                play_sound(swap_sound)
+                PlayCommitSound()
 
             if JoyNewPress(joyIdx, JoyStateKeys.LEFT):
                 Level[levelIdx] = max(0, Level[levelIdx] - 1)
@@ -190,7 +199,7 @@ for joyIdx in config.cursors:
         else if menuDepth == 2:
             if JoyNewPress(joyIdx, JoyStateKeys.NO):
                 --menuDepths[joyIdx]
-                play_sound(swap_sound)
+                PlayCommitSound()
 
 
     const charIdx = SelectedCharacters[joyIdx]

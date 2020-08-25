@@ -158,7 +158,7 @@ def DrawPortait(pos, name, pal, idx, flip = false, frame = 0):
         scale: scale,
     })
 
-def DrawNarrowPortait(pos, name, pal, idx, flip = false, frame = 0):
+def DrawNarrowPortait(pos, name, pal, idx, flip = false, frame = 0, drawNote = false):
     const scale = xy(1, 1)
     const adjX = xy(0, 0)
     const shadowOffset = xy(3, 0)
@@ -187,6 +187,24 @@ def DrawNarrowPortait(pos, name, pal, idx, flip = false, frame = 0):
     })
 
     reset_clip()
+
+    if drawNote:
+        const notePos = pos + xy(0, 22)
+        if flip:
+            notePos.x -= 3
+        else:
+            notePos.x += 19
+
+        draw_sprite({
+            sprite: blocks_sprite[6][18],
+            pos: notePos,
+            override_color: pal.DARK,
+        })
+
+        draw_sprite({
+            sprite: blocks_sprite[6][17],
+            pos: notePos,
+        })
 
 
 
